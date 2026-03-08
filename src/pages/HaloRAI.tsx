@@ -17,7 +17,7 @@ const HaloRAI = () => {
     <div className="font-['Google_Sans',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       {/* Navbar */}
       <nav
-        className="flex items-center justify-between px-8 py-4 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
+        className="flex items-center justify-between px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
@@ -122,11 +122,11 @@ const HaloRAI = () => {
                 />
               </button>
             </div>
-            <div className="relative z-10 w-[420px] h-[280px] flex items-center justify-center">
+            <div className="relative z-10 w-[450px] h-full flex items-center justify-center">
               <img
                 src="/Halorai Dev/Images/Group 1000006715.png"
                 alt="Event flyer 1"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain object-right"
               />
             </div>
           </section>
