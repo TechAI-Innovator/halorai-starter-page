@@ -119,7 +119,7 @@ const HaloRAI = () => {
                 <img
                   src="/Halorai Dev/Icons/Create Design button.png"
                   alt="Create Design"
-                  className="h-16"
+                  className="h-12 xl:h-16"
                 />
               </button>
             </div>
