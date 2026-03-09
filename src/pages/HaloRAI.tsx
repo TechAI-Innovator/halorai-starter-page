@@ -57,15 +57,15 @@ const HaloRAI = () => {
               Welcome back,<br />Johnny
             </h2>
             <nav className="flex flex-col gap-1">
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] font-medium text-[hsl(0,0%,10%)] bg-[hsl(0,0%,96%)] border-b-2 border-[hsl(0,0%,10%)] rounded-b-none no-underline">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] font-medium text-[hsl(0,0%,10%)] bg-white no-underline">
                 <img src="/Halorai Dev/Icons/solar_home-2-linear.svg" alt="Home" className="w-5 h-5" />
                 Home
               </a>
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] text-[hsl(0,0%,58%)] no-underline hover:bg-[hsl(0,0%,96%)] transition-colors">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] text-[hsl(0,0%,58%)] no-underline bg-transparent hover:bg-white transition-colors">
                 <img src="/Halorai Dev/Icons/lsicon_folder-files-filled.svg" alt="Projects" className="w-5 h-5" />
                 Your Projects
               </a>
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] text-[hsl(0,0%,58%)] no-underline hover:bg-[hsl(0,0%,96%)] transition-colors">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] text-[hsl(0,0%,58%)] no-underline bg-transparent hover:bg-white transition-colors">
                 <img src="/Halorai Dev/Icons/hugeicons_chat-feedback.svg" alt="Feedback" className="w-5 h-5" />
                 Give Feedback
               </a>
