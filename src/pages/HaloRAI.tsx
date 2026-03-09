@@ -51,7 +51,7 @@ const HaloRAI = () => {
 
       <div className="flex flex-1 gap-6 pr-8 pt-4 pb-8 bg-white min-h-0">
         {/* Sidebar */}
-        <aside className="w-[220px] min-w-[220px] p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl">
+        <aside className="w-[240px] min-w-[220px] p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl">
           <div className="flex flex-col">
             <h2 className="text-[22px] font-bold text-[hsl(0,0%,10%)] leading-tight mb-7">
               Welcome back,<br />Johnny
@@ -73,7 +73,7 @@ const HaloRAI = () => {
           </div>
 
           {/* Upgrade Card */}
-          <div className="bg-[hsl(0,0%,98%)] border border-[hsl(0,0%,94%)] rounded-2xl p-5">
+          <div className="bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
             <div className="w-14 h-14 bg-[hsl(16,100%,93%)] rounded-[14px] flex items-center justify-center mb-3.5">
               <img src="/Halorai Dev/Icons/material-symbols_crown-rounded.svg" alt="Crown" className="w-8 h-8" />
             </div>
