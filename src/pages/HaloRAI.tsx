@@ -49,9 +49,9 @@ const HaloRAI = () => {
         </div>
       </nav>
 
-      <div className="flex flex-1 gap-6 pr-8 pt-4 pb-8 bg-white min-h-0">
+      <div className="flex flex-1 gap-4 xl:gap-6 pr-4 xl:pr-8 pt-4 pb-8 bg-white min-h-0">
         {/* Sidebar */}
-        <aside className="w-[240px] min-w-[220px] p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl">
+        <aside className="w-[200px] xl:w-[240px] min-w-[180px] xl:min-w-[220px] p-4 xl:p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl shrink-0">
           <div className="flex flex-col">
             <h2 className="text-[22px] text-[hsl(0,0%,10%)] leading-tight mb-16">
               <span className="font-light">Welcome back,</span><br />
