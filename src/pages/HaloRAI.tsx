@@ -111,8 +111,8 @@ const HaloRAI = () => {
             }}
           >
             
-            <div className="flex-1 max-w-[420px] relative z-10">
-              <h1 className="text-3xl font-medium text-[hsl(0,0%,10%)] leading-tight mt-8 mb-32 tracking-tight">
+            <div className="flex-1 max-w-[350px] xl:max-w-[420px] relative z-10">
+              <h1 className="text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] leading-tight mt-8 mb-24 xl:mb-32 tracking-tight">
                 Design Your Next Event Today
               </h1>
               <button className="border-none bg-transparent p-0 cursor-pointer">
