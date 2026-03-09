@@ -17,7 +17,7 @@ const HaloRAI = () => {
     <div className="font-['Google_Sans_Flex',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       {/* Navbar */}
       <nav
-        className="flex items-center justify-between px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
+        className="flex items-center justify-between px-6 xl:px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
