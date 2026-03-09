@@ -151,11 +151,11 @@ const HaloRAI = () => {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-6 gap-3">
               {communityDesigns.map((design) => (
                 <div
                   key={design.id}
-                  className="rounded-2xl overflow-hidden aspect-[3/4] shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-transform"
+                  className="rounded-xl overflow-hidden aspect-[3/4] shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-transform"
                 >
                   <img src={design.image} alt={design.alt} className="w-full h-full object-cover" />
                 </div>
