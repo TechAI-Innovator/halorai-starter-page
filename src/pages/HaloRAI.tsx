@@ -123,7 +123,7 @@ const HaloRAI = () => {
                 />
               </button>
             </div>
-            <div className="relative z-10 w-[450px] h-full flex items-center justify-center">
+            <div className="relative z-10 w-[320px] xl:w-[450px] h-full flex items-center justify-center">
               <img
                 src="/Halorai Dev/Images/Group 1000006715.png"
                 alt="Event flyer 1"
