@@ -17,7 +17,7 @@ const HaloRAI = () => {
     <div className="font-['Google_Sans_Flex',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       {/* Navbar */}
       <nav
-        className="flex items-center justify-between px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
+        className="flex items-center justify-between px-6 xl:px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
@@ -49,9 +49,9 @@ const HaloRAI = () => {
         </div>
       </nav>
 
-      <div className="flex flex-1 gap-6 pr-8 pt-4 pb-8 bg-white min-h-0">
+      <div className="flex flex-1 gap-4 xl:gap-6 pr-4 xl:pr-8 pt-4 pb-8 bg-white min-h-0">
         {/* Sidebar */}
-        <aside className="w-[240px] min-w-[220px] p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl">
+        <aside className="w-[200px] xl:w-[240px] min-w-[180px] xl:min-w-[220px] p-4 xl:p-5 pt-7 flex flex-col justify-between bg-[#F8F8F8] rounded-3xl shrink-0">
           <div className="flex flex-col">
             <h2 className="text-[22px] text-[hsl(0,0%,10%)] leading-tight mb-16">
               <span className="font-light">Welcome back,</span><br />
@@ -103,7 +103,7 @@ const HaloRAI = () => {
         <main className="flex-1 overflow-y-auto min-h-0 rounded-3xl">
           {/* Hero Section */}
           <section
-            className="rounded-3xl px-12 py-10 flex items-center justify-between mb-16 min-h-[300px] relative overflow-hidden"
+            className="rounded-3xl px-6 xl:px-12 py-8 xl:py-10 flex items-center justify-between mb-16 min-h-[260px] xl:min-h-[300px] relative overflow-hidden"
             style={{
               backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
               backgroundSize: "cover",
@@ -111,19 +111,19 @@ const HaloRAI = () => {
             }}
           >
             
-            <div className="flex-1 max-w-[420px] relative z-10">
-              <h1 className="text-3xl font-medium text-[hsl(0,0%,10%)] leading-tight mt-8 mb-32 tracking-tight">
+            <div className="flex-1 max-w-[350px] xl:max-w-[420px] relative z-10">
+              <h1 className="text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] leading-tight mt-8 mb-24 xl:mb-32 tracking-tight">
                 Design Your Next Event Today
               </h1>
               <button className="border-none bg-transparent p-0 cursor-pointer">
                 <img
                   src="/Halorai Dev/Icons/Create Design button.png"
                   alt="Create Design"
-                  className="h-16"
+                  className="h-12 xl:h-16"
                 />
               </button>
             </div>
-            <div className="relative z-10 w-[450px] h-full flex items-center justify-center">
+            <div className="relative z-10 w-[320px] xl:w-[450px] h-full flex items-center justify-center">
               <img
                 src="/Halorai Dev/Images/Group 1000006715.png"
                 alt="Event flyer 1"
