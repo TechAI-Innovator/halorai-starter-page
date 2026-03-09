@@ -103,7 +103,7 @@ const HaloRAI = () => {
         <main className="flex-1 overflow-y-auto min-h-0 rounded-3xl">
           {/* Hero Section */}
           <section
-            className="rounded-3xl px-12 py-10 flex items-center justify-between mb-16 min-h-[300px] relative overflow-hidden"
+            className="rounded-3xl px-6 xl:px-12 py-8 xl:py-10 flex items-center justify-between mb-16 min-h-[260px] xl:min-h-[300px] relative overflow-hidden"
             style={{
               backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
               backgroundSize: "cover",
