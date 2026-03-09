@@ -14,7 +14,7 @@ const HaloRAI = () => {
   const [activeCategory, setActiveCategory] = useState("Prayer Retreat");
 
   return (
-    <div className="font-['Google_Sans',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
+    <div className="font-['Google_Sans_Flex',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       {/* Navbar */}
       <nav
         className="flex items-center justify-between px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
