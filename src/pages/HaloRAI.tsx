@@ -14,7 +14,7 @@ const HaloRAI = () => {
   const [activeCategory, setActiveCategory] = useState("Prayer Retreat");
 
   return (
-    <div className="font-['Google_Sans',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
+    <div className="font-['Google_Sans_Flex',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       {/* Navbar */}
       <nav
         className="flex items-center justify-between px-12 py-3 sticky top-0 z-50 border-b border-[hsl(0,0%,94%)]"
@@ -57,15 +57,15 @@ const HaloRAI = () => {
               Welcome back,<br />Johnny
             </h2>
             <nav className="flex flex-col gap-1">
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] font-medium text-[hsl(0,0%,10%)] bg-[hsl(0,0%,96%)] border-b-2 border-[hsl(0,0%,10%)] rounded-b-none no-underline">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] font-medium text-[hsl(0,0%,10%)] bg-white no-underline">
                 <img src="/Halorai Dev/Icons/solar_home-2-linear.svg" alt="Home" className="w-5 h-5" />
                 Home
               </a>
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] text-[hsl(0,0%,58%)] no-underline hover:bg-[hsl(0,0%,96%)] transition-colors">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] text-[hsl(0,0%,58%)] no-underline bg-transparent hover:bg-white transition-colors">
                 <img src="/Halorai Dev/Icons/lsicon_folder-files-filled.svg" alt="Projects" className="w-5 h-5" />
                 Your Projects
               </a>
-              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-[10px] text-[15px] text-[hsl(0,0%,58%)] no-underline hover:bg-[hsl(0,0%,96%)] transition-colors">
+              <a href="#" className="flex items-center gap-3 px-3.5 py-3 rounded-full text-[15px] text-[hsl(0,0%,58%)] no-underline bg-transparent hover:bg-white transition-colors">
                 <img src="/Halorai Dev/Icons/hugeicons_chat-feedback.svg" alt="Feedback" className="w-5 h-5" />
                 Give Feedback
               </a>
@@ -151,11 +151,11 @@ const HaloRAI = () => {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-6 gap-3">
               {communityDesigns.map((design) => (
                 <div
                   key={design.id}
-                  className="rounded-2xl overflow-hidden aspect-[3/4] shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-transform"
+                  className="rounded-xl overflow-hidden aspect-[3/4] shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-transform"
                 >
                   <img src={design.image} alt={design.alt} className="w-full h-full object-cover" />
                 </div>
