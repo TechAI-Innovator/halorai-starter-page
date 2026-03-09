@@ -11,10 +11,10 @@ const Navbar = () => {
       <div className="flex items-center gap-0.5">
         <img src="/Halorai Dev/Logos/Halorai Logo-.png" alt="Halorai Logo" className="h-7" />
       </div>
-      <div className="flex items-center gap-3 md:gap-5">
+      <div className="flex items-center gap-2 xs:gap-3 md:gap-5">
         <span className="text-[15px] font-normal text-[hsl(0,0%,10%)] cursor-pointer hidden md:inline">Pricing</span>
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full overflow-hidden">
+          <div className="w-8 h-8 xs:w-9 xs:h-9 rounded-full overflow-hidden">
             <img
               src="/Halorai Dev/Images/user avatar.png"
               alt="User avatar"
@@ -26,8 +26,9 @@ const Navbar = () => {
         <button className="bg-[#FCFCFC] border-none rounded-full cursor-pointer p-1 flex items-center">
           <img src="/Halorai Dev/Icons/material-symbols_dark-mode.svg" alt="Dark mode" className="w-4 h-4" />
         </button>
-        <button className="hidden md:flex items-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-3xl px-5 py-2.5 text-sm font-normal cursor-pointer">
-          <img src="/Halorai Dev/Icons/cuida_logout-outline.svg" alt="Logout" className="w-[18px] h-[18px]" />
+        {/* Logout button - always visible, smaller on mobile */}
+        <button className="flex items-center gap-1.5 xs:gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-3xl px-3 xs:px-5 py-2 xs:py-2.5 text-xs xs:text-sm font-normal cursor-pointer">
+          <img src="/Halorai Dev/Icons/cuida_logout-outline.svg" alt="Logout" className="w-4 h-4 xs:w-[18px] xs:h-[18px]" />
           Logout
         </button>
       </div>
