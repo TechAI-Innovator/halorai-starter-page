@@ -13,9 +13,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <div className="font-['Google_Sans_Flex',_'Segoe_UI',_system-ui,_sans-serif] min-h-screen flex flex-col bg-white">
       <Navbar />
 
-      {/* Mobile hamburger button */}
+      {/* Mobile hamburger button - hidden below 500px, shown 500-768px */}
       <button
-        className="md:hidden fixed bottom-6 left-6 z-50 w-12 h-12 bg-[hsl(0,0%,10%)] text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer border-none"
+        className="hidden xs:flex md:hidden fixed bottom-6 left-6 z-50 w-12 h-12 bg-[hsl(0,0%,10%)] text-white rounded-full items-center justify-center shadow-lg cursor-pointer border-none"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         aria-label="Toggle menu"
       >
@@ -35,9 +35,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </svg>
       </button>
 
-      <div className="flex flex-1 gap-4 xl:gap-6 px-4 md:pl-0 md:pr-4 xl:pr-8 pt-4 pb-8 bg-white min-h-0">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 overflow-y-auto min-h-0 rounded-3xl">
+      <div className="flex flex-1 gap-0 xs:gap-4 xl:gap-6 px-0 xs:px-4 md:pl-0 md:pr-4 xl:pr-8 pt-0 xs:pt-4 pb-4 xs:pb-8 bg-white min-h-0">
+        {/* Sidebar hidden below 500px */}
+        <div className="hidden xs:block">
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        </div>
+        <main className="flex-1 overflow-y-auto min-h-0 xs:rounded-3xl">
           {children}
         </main>
       </div>
