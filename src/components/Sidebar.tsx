@@ -50,8 +50,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </nav>
         </div>
 
-        {/* Responsive spacer to separate top content from upgrade card */}
-        <div className="flex-1 min-h-6 md:min-h-10 xl:min-h-14" />
 
         {/* Upgrade Card */}
         <div className="bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
