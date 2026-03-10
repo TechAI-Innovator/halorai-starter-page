@@ -21,7 +21,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           w-[260px] md:w-[200px] xl:w-[240px]
           min-w-0 md:min-w-[180px] xl:min-w-[220px]
           p-4 xl:p-5 pt-7
-          flex flex-col
+          flex flex-col justify-between
           bg-[#F8F8F8] md:rounded-3xl
           shrink-0
           transform transition-transform duration-300 ease-in-out

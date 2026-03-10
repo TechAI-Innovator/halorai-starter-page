@@ -18,7 +18,7 @@ const HaloRAI = () => {
     <AppLayout>
       {/* Hero Section */}
       <section
-        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 py-6 md:py-8 xl:py-10 flex flex-col md:flex-row items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[200px] md:min-h-[260px] xl:min-h-[300px] relative overflow-hidden"
+        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 pt-7 pb-6 md:pt-7 md:pb-8 xl:pt-7 xl:pb-10 flex flex-col md:flex-row items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[200px] md:min-h-[260px] xl:min-h-[300px] relative overflow-hidden"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
