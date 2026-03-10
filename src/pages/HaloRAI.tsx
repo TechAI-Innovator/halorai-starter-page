@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 
 const categories = ["Fellowship", "Love", "Prayer Retreat", "Conference", "Birthday"];
@@ -13,6 +14,7 @@ const communityDesigns = [
 
 const HaloRAI = () => {
   const [activeCategory, setActiveCategory] = useState("Prayer Retreat");
+  const navigate = useNavigate();
 
   return (
     <AppLayout>
@@ -46,7 +48,7 @@ const HaloRAI = () => {
           <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-4 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
             Design Your Next Event Today
           </h1>
-          <button className="border-none bg-transparent p-0 cursor-pointer w-full xs:w-auto">
+          <button className="border-none bg-transparent p-0 cursor-pointer w-full xs:w-auto" onClick={() => navigate("/create-design")}>
             <img
               src="/Halorai Dev/Icons/Create Design button.png"
               alt="Create Design"
