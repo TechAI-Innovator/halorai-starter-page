@@ -17,7 +17,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <aside
         className={`
           fixed md:relative z-50 md:z-auto
-          top-0 left-0 h-full md:h-auto
+          top-0 left-0 h-full
           w-[260px] md:w-[200px] xl:w-[240px]
           min-w-0 md:min-w-[180px] xl:min-w-[220px]
           p-4 xl:p-5 pt-7
