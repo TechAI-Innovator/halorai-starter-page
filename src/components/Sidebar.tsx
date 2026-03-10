@@ -17,11 +17,11 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <aside
         className={`
           fixed md:relative z-50 md:z-auto
-          top-0 left-0 h-full md:h-auto
+          top-0 left-0 h-full
           w-[260px] md:w-[200px] xl:w-[240px]
           min-w-0 md:min-w-[180px] xl:min-w-[220px]
           p-4 xl:p-5 pt-7
-          flex flex-col
+          flex flex-col justify-between
           bg-[#F8F8F8] md:rounded-3xl
           shrink-0
           transform transition-transform duration-300 ease-in-out
@@ -50,8 +50,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </nav>
         </div>
 
-        {/* Responsive spacer to separate top content from upgrade card */}
-        <div className="flex-1 min-h-6 md:min-h-10 xl:min-h-14" />
 
         {/* Upgrade Card */}
         <div className="bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">

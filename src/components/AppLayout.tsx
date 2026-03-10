@@ -37,7 +37,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       <div className="flex flex-1 gap-0 xs:gap-4 xl:gap-6 px-0 xs:px-4 md:pl-0 md:pr-4 xl:pr-8 pt-0 xs:pt-4 pb-4 xs:pb-8 bg-white min-h-0">
         {/* Sidebar hidden below 500px */}
-        <div className="hidden xs:block">
+        <div className="hidden xs:flex">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </div>
         <main className="flex-1 overflow-y-auto min-h-0 xs:rounded-3xl">
