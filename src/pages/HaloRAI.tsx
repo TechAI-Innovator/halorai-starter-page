@@ -14,6 +14,7 @@ const communityDesigns = [
 
 const HaloRAI = () => {
   const [activeCategory, setActiveCategory] = useState("Prayer Retreat");
+  const navigate = useNavigate();
 
   return (
     <AppLayout>
