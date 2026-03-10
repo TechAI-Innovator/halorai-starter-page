@@ -17,11 +17,11 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <aside
         className={`
           fixed md:relative z-50 md:z-auto
-          top-0 left-0 h-full
+          top-0 left-0 h-full md:top-auto md:left-auto md:h-auto md:self-start
           w-[260px] md:w-[200px] xl:w-[240px]
           min-w-0 md:min-w-[180px] xl:min-w-[220px]
           p-4 xl:p-5 pt-7
-          flex flex-col justify-between
+          flex flex-col
           bg-[#F8F8F8] md:rounded-3xl
           shrink-0
           transform transition-transform duration-300 ease-in-out
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
 
         {/* Upgrade Card */}
-        <div className="mt-12 md:mt-16 xl:mt-24 bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
+        <div className="mt-8 md:mt-10 lg:mt-12 xl:mt-14 bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
           <div className="w-12 h-12 bg-[hsl(16,100%,93%)] rounded-full flex items-center justify-center mb-3.5">
             <img src="/Halorai Dev/Icons/material-symbols_crown-rounded.svg" alt="Crown" className="w-7 h-7" />
           </div>
