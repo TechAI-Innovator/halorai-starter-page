@@ -30,7 +30,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         `}
       >
         <div className="flex flex-col">
-          <h2 className="text-[22px] text-[hsl(0,0%,10%)] leading-tight mb-16">
+          <h2 className="text-[22px] text-[hsl(0,0%,10%)] leading-tight mb-16 mt-5">
             <span className="font-light">Welcome back,</span><br />
             <span className="font-medium">Johnny </span>
           </h2>
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
 
         {/* Upgrade Card */}
-        <div className="bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
+        <div className="mt-12 md:mt-16 xl:mt-24 bg-[hsl(0,0%,100%)] border border-[hsl(0,0%,100%)] rounded-2xl p-5">
           <div className="w-12 h-12 bg-[hsl(16,100%,93%)] rounded-full flex items-center justify-center mb-3.5">
             <img src="/Halorai Dev/Icons/material-symbols_crown-rounded.svg" alt="Crown" className="w-7 h-7" />
           </div>

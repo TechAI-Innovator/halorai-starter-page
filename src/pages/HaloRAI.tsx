@@ -43,7 +43,7 @@ const HaloRAI = () => {
           <p className="text-sm text-[hsl(0,0%,55%)] font-light mb-1 block xs:hidden">
             Welcome back, <span className="text-[hsl(0,0%,30%)]">Johnny</span>
           </p>
-          <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 xs:mt-4 md:mt-8 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
+          <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-4 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
             Design Your Next Event Today
           </h1>
           <button className="border-none bg-transparent p-0 cursor-pointer w-full xs:w-auto">
