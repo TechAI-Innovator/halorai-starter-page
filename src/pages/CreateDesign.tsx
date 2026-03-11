@@ -51,27 +51,25 @@ const CreateDesign = () => {
 
       {/* Stepper */}
       <div className="px-4 xs:px-0 mt-6 mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           {steps.map((step, index) => (
             <div key={step} className="flex items-center flex-1 last:flex-none">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium border-2 ${
-                    step <= currentStep
-                      ? "bg-[hsl(330,100%,93%)] border-[hsl(330,100%,85%)] text-[hsl(0,0%,10%)]"
-                      : "bg-white border-[hsl(0,0%,85%)] text-[hsl(0,0%,50%)]"
-                  }`}
-                >
-                  {step}
-                </div>
+              {/* Line BEFORE the number */}
+              <div
+                className={`flex-1 h-[2px] ${
+                  step <= currentStep ? "bg-[hsl(330,100%,85%)]" : "bg-[hsl(0,0%,88%)]"
+                }`}
+              />
+              {/* Number circle */}
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium border-2 shrink-0 ${
+                  step <= currentStep
+                    ? "bg-[hsl(330,100%,93%)] border-[hsl(330,100%,85%)] text-[hsl(0,0%,10%)]"
+                    : "bg-white border-[hsl(0,0%,85%)] text-[hsl(0,0%,50%)]"
+                }`}
+              >
+                {step}
               </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`flex-1 h-[2px] mx-2 ${
-                    step < currentStep ? "bg-[hsl(330,100%,85%)]" : "bg-[hsl(0,0%,88%)]"
-                  }`}
-                />
-              )}
             </div>
           ))}
         </div>
