@@ -20,7 +20,7 @@ const HaloRAI = () => {
     <AppLayout>
       {/* Hero Section */}
       <section
-        className="mt-3 xs:mt-0 xs:rounded-3xl px-5 md:px-6 xl:px-12 py-6 xs:py-0 md:py-1 xl:py-2 flex flex-col md:flex-row items-start xs:items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[180px] md:min-h-[220px] xl:min-h-[260px] relative overflow-hidden"
+        className="mt-3 xs:mt-0 xs:rounded-3xl pl-5 md:px-6 xl:px-12 py-6 xs:py-0 md:py-1 xl:py-2 flex flex-col md:flex-row items-start xs:items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[180px] md:min-h-[220px] xl:min-h-[260px] relative overflow-hidden"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
@@ -28,12 +28,12 @@ const HaloRAI = () => {
         }}
       >
         {/* Text content - shown first on mobile, first on desktop */}
-        <div className="flex-1 max-w-full md:max-w-[350px] xl:max-w-[420px] relative z-10 order-1 md:order-1 text-left">
+        <div className="flex-1 max-w-full md:max-w-[400px] xl:max-w-[450px] relative z-10 order-1 md:order-1 text-left">
           {/* Welcome text - only on mobile */}
           <p className="text-lg text-[hsl(0,0%,55%)] font-light mb-1 block xs:hidden">
             Welcome back, <span className="text-[hsl(0,0%,30%)]">Johnny</span>
           </p>
-          <h1 className="text-[38px] leading-[1.05] xs:text-xl md:text-2xl xl:text-3xl font-semibold xs:font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-2 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
+          <h1 className="text-5xl leading-[1.05] xs:text-3xl md:text-3xl xl:text-3xl font-semibold xs:font-semibold text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-2 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight pr-4">
             Design Your Next Event Today
           </h1>
           <button
@@ -43,7 +43,7 @@ const HaloRAI = () => {
             <img
               src="/Halorai Dev/Icons/Create Design button.png"
               alt="Create Design"
-              className="h-16 xs:h-10 md:h-12 xl:h-16 w-full xs:w-auto object-contain object-left transition-opacity duration-150 ease-out hover:opacity-90"
+              className="h-16 xs:h-12 md:h-14 xl:h-18 w-full xs:w-auto object-contain object-left transition-opacity duration-150 ease-out hover:opacity-90"
             />
           </button>
         </div>
