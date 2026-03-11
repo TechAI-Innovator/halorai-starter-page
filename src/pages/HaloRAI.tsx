@@ -20,7 +20,7 @@ const HaloRAI = () => {
     <AppLayout>
       {/* Hero Section */}
       <section
-        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 pt-7 pb-6 md:pt-7 md:pb-8 xl:pt-7 xl:pb-10 flex flex-col md:flex-row items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[200px] md:min-h-[260px] xl:min-h-[300px] relative overflow-hidden"
+        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 py-0 md:py-1 xl:py-2 flex flex-col md:flex-row items-center justify-between mb-6 xs:mb-8 md:mb-16 min-h-0 xs:min-h-[180px] md:min-h-[220px] xl:min-h-[260px] relative overflow-hidden"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
@@ -45,14 +45,17 @@ const HaloRAI = () => {
           <p className="text-sm text-[hsl(0,0%,55%)] font-light mb-1 block xs:hidden">
             Welcome back, <span className="text-[hsl(0,0%,30%)]">Johnny</span>
           </p>
-          <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-4 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
+          <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-2 mb-5 xs:mb-8 md:mb-24 xl:mb-32 tracking-tight">
             Design Your Next Event Today
           </h1>
-          <button className="border-none bg-transparent p-0 cursor-pointer w-full xs:w-auto" onClick={() => navigate("/create-design")}>
+          <button
+            className="border-none bg-transparent p-0 cursor-pointer w-full xs:w-auto transition-transform duration-150 ease-out hover:scale-[1.02] active:scale-[0.99]"
+            onClick={() => navigate("/create-design")}
+          >
             <img
               src="/Halorai Dev/Icons/Create Design button.png"
               alt="Create Design"
-              className="h-12 xs:h-10 md:h-12 xl:h-16 w-[70%] xs:w-auto object-contain object-left"
+              className="h-12 xs:h-10 md:h-12 xl:h-16 w-[70%] xs:w-auto object-contain object-left transition-opacity duration-150 ease-out hover:opacity-90"
             />
           </button>
         </div>
