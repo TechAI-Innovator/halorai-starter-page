@@ -23,26 +23,29 @@ const CreateDesign = () => {
 
   return (
     <AppLayout>
-      {/* Hero Section */}
+      {/* Hero Section - same as HaloRAI but no button, image cropped at bottom */}
       <section
-        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 pt-7 pb-6 md:pt-7 md:pb-8 xl:pt-7 xl:pb-10 flex flex-col md:flex-row items-start justify-between mb-0 xs:mb-0 min-h-0 xs:min-h-[140px] md:min-h-[160px] xl:min-h-[180px] relative overflow-hidden"
+        className="xs:rounded-3xl px-4 md:px-6 xl:px-12 pt-7 pb-6 md:pt-7 md:pb-8 xl:pt-7 xl:pb-10 flex flex-col md:flex-row items-center justify-between mb-6 xs:mb-8 min-h-0 xs:min-h-[200px] md:min-h-[200px] xl:min-h-[220px] relative overflow-hidden"
         style={{
           backgroundImage: "url('/Halorai Dev/Halorai Background.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="relative z-10">
-          <h1 className="text-2xl md:text-3xl xl:text-4xl font-medium text-[hsl(0,0%,10%)] tracking-tight">
-            Create Design
-          </h1>
-        </div>
-        <div className="relative z-10 w-[200px] md:w-[280px] xl:w-[350px] hidden xs:flex items-center justify-end">
+        {/* Flyer image - cropped at bottom */}
+        <div className="relative z-10 w-full xs:w-full md:w-[280px] lg:w-[320px] xl:w-[450px] order-1 xs:order-2 md:order-2 flex items-start justify-center mb-4 xs:mb-0 overflow-hidden max-h-[120px] md:max-h-[160px] xl:max-h-[180px]">
           <img
             src="/Halorai Dev/Images/Group 1000006715.png"
             alt="Event flyers"
-            className="w-full h-full object-contain"
+            className="w-[85%] xs:w-full h-auto object-contain md:object-right translate-y-[10%]"
           />
+        </div>
+
+        {/* Text content */}
+        <div className="flex-1 max-w-full md:max-w-[350px] xl:max-w-[420px] relative z-10 order-2 xs:order-1 md:order-1">
+          <h1 className="text-[28px] leading-[1.15] xs:text-xl md:text-2xl xl:text-3xl font-medium text-[hsl(0,0%,10%)] xs:leading-tight mt-0 md:mt-2 xl:mt-4 tracking-tight">
+            Create Design
+          </h1>
         </div>
       </section>
 
