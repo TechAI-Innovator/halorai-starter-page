@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HaloRAI from "./pages/HaloRAI";
 import CreateDesign from "./pages/CreateDesign";
 import CreateDesignStep2 from "./pages/CreateDesignStep2";
+import CreateDesignStep3 from "./pages/CreateDesignStep3";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
