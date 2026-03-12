@@ -40,7 +40,7 @@ const CreateDesign = () => {
                 placeholder="e.g House of Fire Ministry"
                 value={formData.churchName}
                 onChange={(e) => handleChange("churchName", e.target.value)}
-                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
               />
             </div>
 
@@ -52,7 +52,7 @@ const CreateDesign = () => {
                   placeholder="eg. 20th-30th March, 2026"
                   value={formData.date}
                   onChange={(e) => handleChange("date", e.target.value)}
-                  className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                  className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -62,7 +62,7 @@ const CreateDesign = () => {
                   placeholder="eg. 5pm Daily"
                   value={formData.time}
                   onChange={(e) => handleChange("time", e.target.value)}
-                  className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                  className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
                 />
               </div>
             </div>
@@ -74,7 +74,7 @@ const CreateDesign = () => {
                 placeholder="e.g 7 Nights of Glory"
                 value={formData.eventName}
                 onChange={(e) => handleChange("eventName", e.target.value)}
-                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
               />
             </div>
 
@@ -85,7 +85,7 @@ const CreateDesign = () => {
                 placeholder="eg. HOF Auditorium, Mainland, Lagos"
                 value={formData.venue}
                 onChange={(e) => handleChange("venue", e.target.value)}
-                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
               />
             </div>
 
@@ -96,7 +96,7 @@ const CreateDesign = () => {
                 placeholder="e.g Flames of Fire"
                 value={formData.theme}
                 onChange={(e) => handleChange("theme", e.target.value)}
-                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
               />
             </div>
 
@@ -107,7 +107,7 @@ const CreateDesign = () => {
                 placeholder="Enter any other instructions or Info you want to add"
                 value={formData.otherInfo}
                 onChange={(e) => handleChange("otherInfo", e.target.value)}
-                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(0,0%,50%)] transition-colors bg-white"
+                className="border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,85%)] transition-colors bg-white"
               />
             </div>
           </div>
