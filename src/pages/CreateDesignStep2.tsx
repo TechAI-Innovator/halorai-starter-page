@@ -194,7 +194,7 @@ const CreateDesignStep2 = () => {
                   Go back
                 </button>
                 <button
-                  onClick={() => {}}
+                  onClick={() => navigate("/create-design/step-3")}
                   className="flex items-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-full px-4 py-3 text-xs font-medium cursor-pointer hover:bg-[hsl(0,0%,20%)] transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
                 >
                   Continue
