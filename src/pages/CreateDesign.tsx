@@ -182,11 +182,13 @@ const CreateDesign = () => {
 
           {/* Continue Button */}
           <div className="flex justify-end mt-8">
-            <button className="flex items-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-full px-6 py-3 text-sm font-medium cursor-pointer hover:bg-[hsl(0,0%,20%)] transition-colors">
+            <button className="flex items-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-full px-4 py-3 text-xs font-medium cursor-pointer hover:bg-[hsl(0,0%,20%)] transition-colors">
               Continue
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
+              <img
+                src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg"
+                alt="Forward"
+                className="w-3.5 h-3.5"
+              />
             </button>
           </div>
         </div>
