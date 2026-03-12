@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
 import ContinueButton from "@/components/ContinueButton";
 
 const CreateDesign = () => {
+  const navigate = useNavigate();
   const [currentStep] = useState(1);
   const [formData, setFormData] = useState({
     churchName: "",
@@ -112,7 +114,7 @@ const CreateDesign = () => {
             </div>
           </div>
 
-          <ContinueButton />
+          <ContinueButton onClick={() => navigate("/create-design/step-2")} />
         </div>
       </div>
     </AppLayout>
