@@ -29,13 +29,13 @@ const CreateDesign = () => {
 
       {/* Form */}
       <div className="px-4 xs:px-0">
-        <div className="border border-[hsl(0,0%,90%)] rounded-2xl p-6 md:p-8">
+        <div className="border border-[hsl(0,0%,80%)] rounded-2xl p-6 md:p-8">
           <h2 className="text-lg md:text-xl font-semibold text-[hsl(0,0%,10%)] mb-6">
             Enter Event Details
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 order-1 md:order-1">
               <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Church/Ministry Name</label>
               <input
                 type="text"
@@ -46,7 +46,7 @@ const CreateDesign = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 order-4 md:order-2">
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Date</label>
                 <input
@@ -69,7 +69,7 @@ const CreateDesign = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 order-2 md:order-3">
               <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Event Name (Optional)</label>
               <input
                 type="text"
@@ -80,7 +80,7 @@ const CreateDesign = () => {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 order-5 md:order-4">
               <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Venue</label>
               <input
                 type="text"
@@ -91,7 +91,7 @@ const CreateDesign = () => {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 order-3 md:order-5">
               <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Theme</label>
               <input
                 type="text"
@@ -102,7 +102,7 @@ const CreateDesign = () => {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 order-6 md:order-6">
               <label className="text-sm font-medium text-[hsl(0,0%,10%)]">Other Info</label>
               <input
                 type="text"
