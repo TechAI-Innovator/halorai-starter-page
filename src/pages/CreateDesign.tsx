@@ -114,7 +114,7 @@ const CreateDesign = () => {
             </div>
           </div>
 
-          <ContinueButton />
+          <ContinueButton onClick={() => navigate("/create-design/step-2")} />
         </div>
       </div>
     </AppLayout>
