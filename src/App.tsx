@@ -19,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<HaloRAI />} />
           <Route path="/create-design" element={<CreateDesign />} />
+          <Route path="/create-design/step-2" element={<CreateDesignStep2 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
