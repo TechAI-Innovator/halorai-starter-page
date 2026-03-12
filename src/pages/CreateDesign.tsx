@@ -6,6 +6,7 @@ import StepperProgress from "@/components/StepperProgress";
 import ContinueButton from "@/components/ContinueButton";
 
 const CreateDesign = () => {
+  const navigate = useNavigate();
   const [currentStep] = useState(1);
   const [formData, setFormData] = useState({
     churchName: "",
