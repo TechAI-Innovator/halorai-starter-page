@@ -49,10 +49,7 @@ const CreateDesignStep4 = () => {
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)]">Details</h3>
                 <button className="w-7 h-7 flex items-center justify-center cursor-pointer bg-transparent border-none">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(0,0%,30%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
+                  <img src="/Halorai Dev/Icons\lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex flex-col gap-1.5 text-sm text-[hsl(0,0%,45%)]">
@@ -138,9 +135,11 @@ const CreateDesignStep4 = () => {
                 defaultValue="Fierce Fire Burning on a Mountain"
                 className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-5 py-4 text-sm text-[hsl(0,0%,10%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white"
               />
-              <button className="flex items-center gap-2 text-white border-none rounded-full px-6 py-3.5 text-sm font-medium cursor-pointer transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shrink-0 bg-gradient-to-r from-[hsl(350,90%,60%)] to-[hsl(25,100%,60%)]">
-                Create
-                <img src="/Halorai Dev/Icons/Create button.svg" alt="Create" className="w-5 h-5" />
+              <button
+                aria-label="Create"
+                className="border-none bg-transparent p-0 cursor-pointer transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shrink-0"
+              >
+                <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-14 w-auto object-contain" />
               </button>
             </div>
           </div>
