@@ -30,7 +30,7 @@ const CreateDesignStep5 = () => {
             {/* Middle Column - Design Preview */}
             <div className="flex items-center justify-center">
               <img
-                src="/Halorai Dev/Images/5.png"
+                src="/Halorai Dev/Images/Easter retreat.png"
                 alt="Design Preview"
                 className="w-full max-w-[380px] h-auto rounded-xl object-contain"
               />
