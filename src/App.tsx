@@ -8,6 +8,7 @@ import CreateDesign from "./pages/CreateDesign";
 import CreateDesignStep2 from "./pages/CreateDesignStep2";
 import CreateDesignStep3 from "./pages/CreateDesignStep3";
 import CreateDesignStep4 from "./pages/CreateDesignStep4";
+import CreateDesignStep5 from "./pages/CreateDesignStep5";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
