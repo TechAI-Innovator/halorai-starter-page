@@ -25,6 +25,7 @@ const App = () => (
           <Route path="/create-design/step-2" element={<CreateDesignStep2 />} />
           <Route path="/create-design/step-3" element={<CreateDesignStep3 />} />
           <Route path="/create-design/step-4" element={<CreateDesignStep4 />} />
+          <Route path="/create-design/step-5" element={<CreateDesignStep5 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
