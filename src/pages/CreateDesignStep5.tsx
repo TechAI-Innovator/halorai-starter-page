@@ -13,17 +13,18 @@ const CreateDesignStep5 = () => {
 
       <div className="px-4 xs:px-0">
         <div className="border border-[hsl(0,0%,80%)] rounded-2xl p-6 md:p-8">
-          <h2 className="text-lg md:text-xl font-semibold text-[hsl(0,0%,10%)] mb-6">
-            Preparing Your Design
-          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-[0.35fr_0.45fr_0.35fr] gap-6 md:gap-4">
             {/* Left Column - Analysing theme */}
-            <div className="flex items-center justify-center">
+            <div className=" items-center justify-center">
+              <h2 className="text-lg md:text-xl font-semibold text-[hsl(0,0%,10%)] mb-6">
+                Preparing Your Design
+              </h2>
+              
               <img
-                src="/Halorai Dev/Images/analysing theme.png"
+                src="/Halorai Dev/Images/analysing theme 2.png"
                 alt="Analyzing your theme"
-                className="w-48 h-48 md:w-64 md:h-64 object-contain"
+                className="w-48 h-48 md:w-64 md:h-48 object-contain my-20 pl-4"
               />
             </div>
 
@@ -32,7 +33,7 @@ const CreateDesignStep5 = () => {
               <img
                 src="/Halorai Dev/Images/Easter retreat.png"
                 alt="Design Preview"
-                className="w-full max-w-[380px] h-auto rounded-xl object-contain"
+                className="w-full max-w-[280px] h-auto rounded-xl object-contain"
               />
             </div>
 

@@ -46,6 +46,22 @@ const initialMinisters: Minister[] = [
     placeholderTitle: "Special Guest",
     avatar: "/Halorai Dev/Images/Ellipse 4.png",
   },
+  {
+    slotId: 5,
+    name: "",
+    title: "",
+    placeholderName: "Pastor John Michael",
+    placeholderTitle: "Guest Speaker",
+    avatar: "/Halorai Dev/Images/Ellipse 1.png",
+  },
+  {
+    slotId: 6,
+    name: "",
+    title: "",
+    placeholderName: "Pastor Drake Akinola",
+    placeholderTitle: "Host",
+    avatar: "/Halorai Dev/Images/Ellipse 2.png",
+  },
 ];
 
 const CreateDesignStep4 = () => {
@@ -79,10 +95,10 @@ const CreateDesignStep4 = () => {
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Details</h3>
                 <button className="w-7 h-7 flex items-center justify-center cursor-pointer bg-transparent border-none">
-                  <img src="/Halorai Dev/Icons\lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
+                  <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex flex-col gap-1.5 text-sm text-[hsl(0,0%,45%)]">
+              <div className="details-scroll flex flex-col gap-1.5 text-sm text-[hsl(0,0%,45%)] pr-2">
                 <span>House of Fire Ministry</span>
                 <span>7 Nights of Glory</span>
                 <span>Flames of Fire</span>
@@ -126,7 +142,7 @@ const CreateDesignStep4 = () => {
                   Upload
                 </button>
               </div>
-              <div className="flex flex-col gap-3 md:max-h-[220px] md:overflow-y-auto md:pr-2">
+              <div className="ministers-scroll flex flex-col gap-3 md:max-h-[200px] md:overflow-y-auto md:pr-8">
                 {ministers.map((minister) => (
                   <div key={minister.slotId} className="flex items-center gap-3">
                     <img
