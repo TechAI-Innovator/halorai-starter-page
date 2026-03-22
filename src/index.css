@@ -204,6 +204,3 @@ All colors MUST be HSL.
 .details-scroll::-webkit-scrollbar-thumb:hover {
   background: hsl(0, 0%, 70%);
 }
-
-
-/* just for changes */
