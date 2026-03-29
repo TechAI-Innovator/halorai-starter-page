@@ -1,11 +1,54 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
+import { useCreateDesign } from "@/contexts/CreateDesignContext";
+import { aiGenerateFlyer } from "@/lib/api";
 
 const CreateDesignStep5 = () => {
   const [message, setMessage] = useState("");
   const hasMessage = message.trim().length > 0;
+  const [isPreparing, setIsPreparing] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [flyer, setFlyer] = useState<{ mimeType: string; base64: string } | null>(null);
+
+  const { eventDetails, logos, ministers, concepts, selectedConceptId } = useCreateDesign();
+  const selectedConcept = useMemo(() => concepts.find((c) => c.id === selectedConceptId) || concepts[0], [concepts, selectedConceptId]);
+  const conceptDescription = selectedConcept?.description || "";
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      setError("");
+      setFlyer(null);
+      setIsPreparing(true);
+
+      try {
+        const res = await aiGenerateFlyer({
+          eventDetails,
+          concept: conceptDescription,
+          ministersMeta: ministers.map((m) => ({ name: m.name, title: m.title })),
+          logos: logos.map((l) => l.file),
+          ministers: ministers.map((m) => m.avatar.file),
+        });
+        if (cancelled) return;
+        const first = res.images?.[0];
+        if (!first?.base64) throw new Error("AI returned no image.");
+        setFlyer(first);
+      } catch (e: any) {
+        if (cancelled) return;
+        setError(e?.message || "Failed to generate flyer.");
+      } finally {
+        if (!cancelled) setIsPreparing(false);
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [conceptDescription, eventDetails, logos, ministers]);
 
   return (
     <AppLayout>
@@ -25,17 +68,23 @@ const CreateDesignStep5 = () => {
               <img
                 src="/Halorai Dev/Images/analysing theme 2.png"
                 alt="Analyzing your theme"
-                className="w-48 h-48 md:w-64 md:h-48 object-contain my-20 pl-4"
+                className={`w-48 h-48 md:w-64 md:h-48 object-contain my-20 pl-4 ${
+                  isPreparing ? "motion-safe:[animation:spin_3.2s_linear_infinite]" : ""
+                }`}
               />
             </div>
 
             {/* Middle Column - Design Preview */}
             <div className="flex items-center justify-center">
-              <img
-                src="/Halorai Dev/Images/Easter retreat.png"
-                alt="Design Preview"
-                className="w-full max-w-[280px] h-auto rounded-xl object-contain"
-              />
+              {flyer ? (
+                <img
+                  src={`data:${flyer.mimeType};base64,${flyer.base64}`}
+                  alt="Design Preview"
+                  className="w-full max-w-[280px] h-auto rounded-xl object-contain"
+                />
+              ) : (
+                <div className="w-full max-w-[280px] aspect-[9/16] rounded-xl bg-transparent" aria-label="Design preview loading" />
+              )}
             </div>
 
             {/* Right Column - Chat/Edit input + Buttons */}
@@ -59,6 +108,12 @@ const CreateDesignStep5 = () => {
                   </button>
                 </div>
               </div>
+
+              {error ? (
+                <div className="w-full max-w-[420px] mt-3 text-xs text-[hsl(15,100%,45%)]">
+                  {error}
+                </div>
+              ) : null}
 
               <div className="w-full max-w-[420px] flex items-center gap-4 mt-4">
                 <button className="flex-1 flex items-center justify-center gap-2 bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-full px-6 py-3 text-sm font-regular text-[hsl(0,0%,10%)] cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors">

@@ -1,0 +1,82 @@
+export type UploadedItem = {
+  id: string;
+  url: string;
+  originalName: string;
+};
+
+import { apiUrl } from "@/lib/config";
+
+async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, init);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Request failed (${res.status})`);
+  }
+  return (await res.json()) as T;
+}
+
+export async function saveEventDetails(payload: unknown): Promise<{ id: string }> {
+  return await requestJson<{ id: string }>(apiUrl("/api/event-details"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function uploadLogos(files: File[]): Promise<UploadedItem[]> {
+  const fd = new FormData();
+  for (const f of files) fd.append("files", f);
+  const res = await requestJson<{ items: UploadedItem[] }>(apiUrl("/api/uploads/logos"), { method: "POST", body: fd });
+  return res.items;
+}
+
+export async function deleteLogo(id: string): Promise<void> {
+  await requestJson<{ ok: boolean }>(apiUrl(`/api/uploads/logos/${id}`), { method: "DELETE" });
+}
+
+export async function uploadMinisterImages(files: File[]): Promise<UploadedItem[]> {
+  const fd = new FormData();
+  for (const f of files) fd.append("files", f);
+  const res = await requestJson<{ items: UploadedItem[] }>(apiUrl("/api/uploads/ministers"), { method: "POST", body: fd });
+  return res.items;
+}
+
+export async function deleteMinisterImage(id: string): Promise<void> {
+  await requestJson<{ ok: boolean }>(apiUrl(`/api/uploads/ministers/${id}`), { method: "DELETE" });
+}
+
+export type AiTextResponse = { model: string; text: string };
+
+export async function aiGenerateText(prompt: string, model?: string): Promise<AiTextResponse> {
+  return await requestJson<AiTextResponse>(apiUrl("/api/ai/text"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(model ? { prompt, model } : { prompt }),
+  });
+}
+
+export type AiFlyerResponse = {
+  model: string;
+  template?: { bucket: string; file: string };
+  images: { mimeType: string; base64: string }[];
+};
+
+export async function aiGenerateFlyer(payload: {
+  eventDetails: unknown;
+  concept?: string;
+  message?: string;
+  ministersMeta?: { name: string; title: string }[];
+  logos?: File[];
+  ministers?: File[];
+}): Promise<AiFlyerResponse> {
+  const fd = new FormData();
+  fd.append("eventDetails", JSON.stringify(payload.eventDetails ?? {}));
+  if (payload.concept) fd.append("concept", payload.concept);
+  if (payload.message) fd.append("message", payload.message);
+  if (payload.ministersMeta?.length) fd.append("ministersMeta", JSON.stringify(payload.ministersMeta));
+  for (const f of payload.logos ?? []) fd.append("logos", f);
+  for (const f of payload.ministers ?? []) fd.append("ministers", f);
+
+  return await requestJson<AiFlyerResponse>(apiUrl("/api/ai/flyer"), { method: "POST", body: fd });
+}
+
