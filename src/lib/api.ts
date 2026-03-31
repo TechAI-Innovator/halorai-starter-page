@@ -5,14 +5,44 @@ export type UploadedItem = {
 };
 
 import { apiUrl } from "@/lib/config";
+import { log } from "@/lib/logger";
 
 async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, init);
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || `Request failed (${res.status})`);
+  const started = performance.now();
+  try {
+    const res = await fetch(input, init);
+    const durMs = Math.round(performance.now() - started);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      const requestId = res.headers.get("x-request-id") || undefined;
+      const msg = text || `Request failed (${res.status})`;
+      log("error", "api.request_failed", {
+        url: String(input),
+        method: init?.method || "GET",
+        status: res.status,
+        durationMs: durMs,
+        requestId,
+        body: msg,
+      });
+      throw new Error(requestId ? `${msg} (requestId: ${requestId})` : msg);
+    }
+    log("info", "api.request_ok", {
+      url: String(input),
+      method: init?.method || "GET",
+      status: res.status,
+      durationMs: durMs,
+    });
+    return (await res.json()) as T;
+  } catch (e: unknown) {
+    const durMs = Math.round(performance.now() - started);
+    log("error", "api.request_exception", {
+      url: String(input),
+      method: init?.method || "GET",
+      durationMs: durMs,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    throw e;
   }
-  return (await res.json()) as T;
 }
 
 export async function saveEventDetails(payload: unknown): Promise<{ id: string }> {

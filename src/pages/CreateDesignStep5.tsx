@@ -4,6 +4,8 @@ import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
 import { useCreateDesign } from "@/contexts/CreateDesignContext";
 import { aiGenerateFlyer } from "@/lib/api";
+import { downloadFlyer } from "@/lib/downloadFlyer";
+import ArcLoader from "@/components/ArcLoader";
 
 const CreateDesignStep5 = () => {
   const [message, setMessage] = useState("");
@@ -11,15 +13,39 @@ const CreateDesignStep5 = () => {
   const [isPreparing, setIsPreparing] = useState(false);
   const [error, setError] = useState<string>("");
   const [flyer, setFlyer] = useState<{ mimeType: string; base64: string } | null>(null);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { eventDetails, logos, ministers, concepts, selectedConceptId } = useCreateDesign();
   const selectedConcept = useMemo(() => concepts.find((c) => c.id === selectedConceptId) || concepts[0], [concepts, selectedConceptId]);
   const conceptDescription = selectedConcept?.description || "";
+  const filenameBase = useMemo(() => {
+    return eventDetails.eventName?.trim() || eventDetails.theme?.trim() || "flyer";
+  }, [eventDetails.eventName, eventDetails.theme]);
+
+  const canGenerate = useMemo(() => {
+    const requiredStep1Ok =
+      !!eventDetails.churchName?.trim() &&
+      !!eventDetails.date?.trim() &&
+      !!eventDetails.time?.trim() &&
+      !!eventDetails.venue?.trim() &&
+      !!eventDetails.theme?.trim();
+
+    const step3Ok = !!conceptDescription.trim() && (selectedConceptId != null || concepts.length > 0);
+    return requiredStep1Ok && step3Ok;
+  }, [conceptDescription, concepts.length, eventDetails, selectedConceptId]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
+      if (!canGenerate) {
+        setIsPreparing(false);
+        setFlyer(null);
+        setError("Missing required info. Please go back to Step 1 and Step 3 to complete your details and pick a concept.");
+        return;
+      }
+
       setError("");
       setFlyer(null);
       setIsPreparing(true);
@@ -36,9 +62,10 @@ const CreateDesignStep5 = () => {
         const first = res.images?.[0];
         if (!first?.base64) throw new Error("AI returned no image.");
         setFlyer(first);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        setError(e?.message || "Failed to generate flyer.");
+        const msg = e instanceof Error ? e.message : "Failed to generate flyer.";
+        setError(msg);
       } finally {
         if (!cancelled) setIsPreparing(false);
       }
@@ -48,7 +75,18 @@ const CreateDesignStep5 = () => {
     return () => {
       cancelled = true;
     };
-  }, [conceptDescription, eventDetails, logos, ministers]);
+  }, [canGenerate, conceptDescription, eventDetails, logos, ministers]);
+
+  const handleDownload = async (format: "png" | "jpg" | "pdf") => {
+    if (!flyer) return;
+    setIsDownloadOpen(false);
+    setIsDownloading(true);
+    try {
+      await downloadFlyer({ flyer, filenameBase, format });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -64,14 +102,15 @@ const CreateDesignStep5 = () => {
               <h2 className="text-lg md:text-xl font-semibold text-[hsl(0,0%,10%)] mb-6">
                 Preparing Your Design
               </h2>
-              
-              <img
-                src="/Halorai Dev/Images/analysing theme 2.png"
-                alt="Analyzing your theme"
-                className={`w-48 h-48 md:w-64 md:h-48 object-contain my-20 pl-4 ${
-                  isPreparing ? "motion-safe:[animation:spin_3.2s_linear_infinite]" : ""
-                }`}
-              />
+
+              <div className="my-20 pl-4">
+                <ArcLoader
+                  size={220}
+                  label={isPreparing ? "Preparing..." : canGenerate ? "Ready" : "Missing info"}
+                  spinning={isPreparing}
+                  spinDurationMs={3200}
+                />
+              </div>
             </div>
 
             {/* Middle Column - Design Preview */}
@@ -98,6 +137,7 @@ const CreateDesignStep5 = () => {
                 />
                 <div className="flex justify-end mt-2">
                   <button
+                    disabled={!canGenerate}
                     className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors border-none ${
                       hasMessage
                         ? "bg-[hsl(25,100%,35%)] hover:bg-[hsl(25,100%,30%)]"
@@ -116,18 +156,58 @@ const CreateDesignStep5 = () => {
               ) : null}
 
               <div className="w-full max-w-[420px] flex items-center gap-4 mt-4">
-                <button className="flex-1 flex items-center justify-center gap-2 bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-full px-6 py-3 text-sm font-regular text-[hsl(0,0%,10%)] cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors">
+                <button
+                  disabled={!canGenerate}
+                  className={`flex-1 flex items-center justify-center gap-2 border rounded-full px-6 py-3 text-sm font-regular transition-colors ${
+                    !canGenerate
+                      ? "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,40%)] cursor-not-allowed"
+                      : "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,10%)] cursor-pointer hover:border-[hsl(0,0%,60%)]"
+                  }`}
+                >
                   <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
                   Edit
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-full px-6 py-3 text-sm font-regular cursor-pointer hover:bg-[hsl(0,0%,20%)] transition-colors">
-                  Download
-                  <img
-                    src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg"
-                    alt="Forward"
-                    className="w-4 h-4 pl-1"
-                  />
-                </button>
+                <div className="flex-1 relative">
+                  <button
+                    disabled={!canGenerate || !flyer || isDownloading}
+                    onClick={() => setIsDownloadOpen((v) => !v)}
+                    className={`w-full flex items-center justify-center gap-2 border-none rounded-full px-6 py-3 text-sm font-regular transition-colors ${
+                      !canGenerate || !flyer || isDownloading
+                        ? "bg-[hsl(0,0%,60%)] text-white cursor-not-allowed"
+                        : "bg-[hsl(0,0%,10%)] text-white cursor-pointer hover:bg-[hsl(0,0%,20%)]"
+                    }`}
+                  >
+                    {isDownloading ? "Preparing..." : "Download"}
+                    <img
+                      src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg"
+                      alt="Forward"
+                      className="w-4 h-4 pl-1"
+                    />
+                  </button>
+
+                  {isDownloadOpen && flyer ? (
+                    <div className="absolute right-0 mt-2 w-full bg-white border border-[hsl(0,0%,90%)] rounded-2xl shadow-lg p-2 z-20">
+                      <button
+                        onClick={() => void handleDownload("png")}
+                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
+                      >
+                        PNG
+                      </button>
+                      <button
+                        onClick={() => void handleDownload("jpg")}
+                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
+                      >
+                        JPG
+                      </button>
+                      <button
+                        onClick={() => void handleDownload("pdf")}
+                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
+                      >
+                        PDF (clear view)
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
 import { useCreateDesign } from "@/contexts/CreateDesignContext";
 import { aiGenerateText } from "@/lib/api";
+import ArcLoader from "@/components/ArcLoader";
 
 const CreateDesignStep3 = () => {
   const navigate = useNavigate();
@@ -65,14 +66,23 @@ const CreateDesignStep3 = () => {
           parsed = null;
         }
 
+        const asConceptArray = (value: unknown): Array<{ label?: unknown; description?: unknown; text?: unknown }> => {
+          if (!Array.isArray(value)) return [];
+          return value.filter((v) => v !== null && typeof v === "object") as Array<{
+            label?: unknown;
+            description?: unknown;
+            text?: unknown;
+          }>;
+        };
+
         const next =
-          Array.isArray(parsed) && parsed.length
-            ? parsed
+          asConceptArray(parsed).length
+            ? asConceptArray(parsed)
                 .slice(0, 3)
-                .map((c: any, idx: number) => ({
+                .map((c, idx: number) => ({
                   id: idx + 1,
-                  label: String(c?.label || `Concept ${idx + 1}`),
-                  description: String(c?.description || c?.text || "").trim(),
+                  label: String((c.label as string | undefined) || `Concept ${idx + 1}`),
+                  description: String((c.description as string | undefined) || (c.text as string | undefined) || "").trim(),
                 }))
                 .filter((c) => c.description)
             : txt
@@ -100,9 +110,10 @@ const CreateDesignStep3 = () => {
         setConceptsKey(desiredKey);
         setConcepts(filled.slice(0, 3));
         setSelectedConceptId(filled[0]?.id ?? 1);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        setError(e?.message || "Failed to generate concepts.");
+        const msg = e instanceof Error ? e.message : "Failed to generate concepts.";
+        setError(msg);
       } finally {
         if (!cancelled) setIsAnalyzing(false);
       }
@@ -114,7 +125,7 @@ const CreateDesignStep3 = () => {
     };
     // We intentionally re-run if theme/eventName changes.
   }, [
-    concepts.length,
+    concepts,
     conceptsKey,
     desiredKey,
     eventName,
@@ -147,13 +158,9 @@ const CreateDesignStep3 = () => {
 
               {/* Analyzing theme image */}
               <div className="flex items-start justify-start mt-8">
-                <img
-                  src="/Halorai Dev/Images/analysing theme.png"
-                  alt="Analyzing your theme"
-                  className={`w-24 h-24 md:w-48 md:h-48 object-contain ml-2 md:ml-4 ${
-                    isAnalyzing ? "motion-safe:[animation:spin_2.6s_linear_infinite]" : ""
-                  }`}
-                />
+                <div className="ml-2 md:ml-4">
+                  <ArcLoader size={180} label={isAnalyzing ? "Analyzing..." : "Ready"} spinning={isAnalyzing} spinDurationMs={2600} />
+                </div>
               </div>
             </div>
 

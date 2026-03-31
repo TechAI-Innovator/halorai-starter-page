@@ -9,6 +9,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 from ai.routes import ai_bp
+from logging_setup import append_client_log, setup_logging
 
 
 APP_ROOT = Path(__file__).resolve().parent
@@ -84,11 +85,26 @@ load_dotenv(dotenv_path=APP_ROOT / ".env", override=False)
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}})
 app.register_blueprint(ai_bp)
+setup_logging(app, app_root=APP_ROOT)
 
 
 @app.get("/api/health")
 def health():
   return jsonify({"ok": True, "time": _now_iso()})
+
+
+@app.post("/api/client-logs")
+def client_logs():
+  payload = request.get_json(silent=True) or {}
+  # Basic size guard.
+  raw = json.dumps(payload)
+  if len(raw) > 200_000:
+    return jsonify({"error": "Payload too large"}), 413
+
+  ok, err = append_client_log(APP_ROOT, payload)
+  if not ok:
+    return jsonify({"error": err or "Failed to write log"}), 500
+  return jsonify({"ok": True})
 
 
 @app.post("/api/event-details")

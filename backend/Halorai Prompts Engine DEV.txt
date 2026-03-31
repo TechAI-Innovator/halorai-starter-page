@@ -1,0 +1,236 @@
+﻿Halorai Prompts Engine Final
+
+
+
+
+1. Theme Concept Generator Prompt
+
+
+“Generate 3 powerful visual concepts based on the provided event theme.
+The goal is to translate the theme into strong, symbolic imagery that can be used as the main background idea for a church flyer.
+Instructions:
+* Each concept must represent the theme using a clear visual metaphor (not abstract words).
+* Focus on emotionally strong and visually striking scenes.
+* Avoid generic ideas. Each concept should feel unique and meaningful.
+* Keep descriptions short and vivid (1–2 lines each).
+* Do not mention design elements like text, layout, or typography.
+* Focus only on the main visual scene or subject.
+Example:
+Input Theme: Resilience
+Output:
+Concept 1: A tiny ant dragging a massive object across a cracked, dry الأرض, showing strength beyond its size.
+Concept 2: A tree growing through solid concrete, breaking it apart as it rises toward light.
+Concept 3: A lone figure walking through a violent storm, pushing forward against strong winds and rain.
+PLEASE NOTE: Concepts must feel cinematic and dramatic, not ordinary or everyday scenes.”
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+2. Template Selector (Backend Classifier)
+
+
+
+
+Our template selection process should be rule-based, not AI-driven.
+1. Template Organization
+All templates must be grouped based on the number of minister slots they support.
+Example structure:
+   * /templates/0-minister
+   * /templates/1-minister
+   * /templates/2-ministers
+   * …
+   * /templates/10-ministers
+Each folder contains templates designed specifically for that number of ministers.
+   2. User Input Handling
+When a user uploads minister images, count the total number of images.
+Example:
+num_ministers = length(uploaded_images)
+      3. Template Matching Logic
+Use the number of uploaded images to select the corresponding template folder.
+Example:
+If num_ministers = 3
+→ Select from /templates/3-ministers
+Then:
+         * Randomly select a template
+OR
+         * Select based on internal ranking (if available)
+            4. Upload Restriction
+Users should not be allowed to upload more than 5 minister images.
+If upload exceeds 5:
+               * Show error message
+               * Prevent submission
+This limit can be increased in future versions (e.g. up to 20 ministers) with updated pricing.
+
+
+
+
+
+
+               3. Flyer Builder Prompt
+
+
+Generate a Professional Cinematic Flyer using the provided inputs. “You are not designing from scratch. You are editing a fixed template using new inputs.”
+
+
+Inputs included:
+               * User event details (title, date, time, venue, etc.)
+               * Uploaded minister portrait images
+               * Selected visual concept (for background)
+               * Reference flyer template (layout and style guide)
+               * Design metadata system
+
+
+Core Instruction:
+Recreate the reference flyer with very high visual similarity (about 90%) in layout, structure, and styling. The final design must feel like the same template was used.
+What to Keep from the Template:
+               * Overall layout and composition
+               * Positioning of all elements (title, ministers, date, venue)
+               * Typography style and text hierarchy
+               * Color grading and lighting atmosphere
+               * Visual effects such as glow, shadows, and highlights
+What to Change:
+               1. Background Concept
+Replace the original background subject with the selected concept.
+The new concept must follow the same composition style, lighting, and depth as the template.
+Blend it naturally into the environment using the same cinematic effects.
+               2. Title Text
+Replace the title with the user’s event title.
+Apply the exact same text style, font feel, effects, and placement as in the template.
+               3. Minister Images
+Use ONLY the uploaded minister portraits.
+Do NOT use or recreate any faces from the reference template.
+Apply the same portrait treatment as the template:
+                  * lighting direction
+                  * contrast level
+                  * glow and edge separation
+                  * color grading
+All ministers must look like they were photographed in the same environment.
+                     4. Event Details (Date, Time, Venue)
+Replace all text content with the user’s details.
+Preserve the structure and formatting style from the template.
+Automatically adjust the format to match the template style.
+Example:
+If template uses "March 15, 2026"
+Convert user input to match that format.
+                        5. Consistency
+Ensure all elements match the same visual tone:
+                           * lighting
+                           * color balance
+                           * contrast
+                           * atmosphere
+The final flyer must look cohesive, realistic, and professionally designed.
+Important Rules:
+                           * Do not introduce new layout styles
+                           * Do not change element positions
+                           * Do not use random or unrelated imagery
+                           * Maintain a strong visual hierarchy
+Output a clean, high-quality flyer design.
+
+
+Precision Control Instructions
+                           1. Minister Arrangement
+Study the spacing, alignment, and positioning of ministers in the reference template.
+Replicate the exact arrangement, including distance between subjects, scaling, and alignment. Do not alter the composition structure.
+                           2. Portrait Enhancement Quality
+Apply a crisp, high-definition finish to all uploaded minister images to match the template quality.
+Enhancements should include:
+                              * increased sharpness and clarity
+                              * balanced contrast and exposure
+                              * improved lighting highlights
+                              * subtle texture enhancement
+                              * slight dehaze for clarity
+All portraits must appear clean, detailed, and professionally graded.
+                                 4. Strict Content Control
+Do not reuse, recreate, or include any text from the reference template.
+Only use the event details provided in the user input.
+                                 5. Layout Consistency
+All elements must follow the exact layout structure of the reference template.
+Do not reposition or redesign sections.
+                                 6. Logo Placement
+If user logos are provided, place them naturally within the design in positions consistent with the template style (e.g. corners, footer, header).
+Ensure proper scaling and clean integration.
+                                 7. Overlay and Effects
+Replicate all global visual effects from the template, including overlays such as light flares, glow, particles, smoke, or texture layers.
+These effects must match the intensity and style of the reference design.
+                                 8. Portrait Cropping and Framing
+Match the exact portrait framing style used in the template.
+If the template shows ministers cropped at chest or shoulder level, apply the same cropping to all uploaded images.
+Do not extend or reveal more of the body than the template shows.
+
+
+STRICT ENFORCEMENT RULES (NON-NEGOTIABLE)
+                                    1. Template Fidelity is Mandatory
+The final design must match the reference template with near-identical accuracy in layout, spacing, and structure.
+Do not reinterpret. Do not redesign. Do not improvise.
+                                    2. Zero Foreign Elements
+Do NOT use, recreate, or infer any faces, objects, or text from the reference template.
+Only use:
+                                       * uploaded minister images
+                                       * user-provided text
+                                       * selected background concept
+Nothing else is allowed.
+                                       3. No Hallucinated Content
+Do NOT generate or invent:
+                                          * event names
+                                          * subtitles
+                                          * extra text
+                                          * additional graphics
+If it is not in the user input, it must not appear in the design.
+                                          4. Layout Lock
+All element positions must remain exactly as in the template.
+No shifting, no rebalancing, no redesign.
+                                          5. Minister Image Restriction
+Only use the exact uploaded minister images.
+Never generate new human figures.
+Never modify identity.
+                                          6. Output Validation Rule
+Before finalizing, verify:
+                                             * all text matches user input exactly
+                                             * no extra text exists
+                                             * no template faces or elements are present
+                                             * layout matches the template structure
+If any rule is broken, regenerate correctly.
+                                             7. Priority Rule
+Accuracy and replication are more important than creativity.
+Always prioritize matching the template over making artistic changes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+All Inputs:
+                                                1. User event details: 
+Ministry Name: Salvation Army Ministries Int’l
+Event Name: 3hours Prayer Retreat
+Title/Theme: Shield of Faith
+Date: 14th-16th June, 2026
+Time: 5pm daily
+Venue: The Salvation Theatre, Surulere, Lagos.
+Contact: 081 234 567 89
+                                                2. Minister portrait images (Attached below)
+
+
+                                                3. Selected visual concept: 
+        Leg walking on water (a reference of peter walking on water as commanded by Jesus)
+                                                4. Reference flyer template: Attached
+
+
+                                                5. Design metadata system:
