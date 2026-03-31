@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
@@ -18,10 +18,9 @@ const CreateDesignStep3 = () => {
   const eventName = eventDetails.eventName?.trim() || "";
   const desiredKey = useMemo(() => `${theme}||${eventName}`.trim(), [eventName, theme]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
+  const generateConcepts = useCallback(
+    async (opts?: { force?: boolean }) => {
+      const force = !!opts?.force;
       if (!theme) {
         // If user skipped theme, we can't generate; keep empty and let them go back.
         setConcepts([]);
@@ -30,7 +29,7 @@ const CreateDesignStep3 = () => {
       }
 
       // If we already generated for this exact input, don't re-run.
-      if (concepts.length === 3 && conceptsKey === desiredKey) {
+      if (!force && concepts.length === 3 && conceptsKey === desiredKey) {
         if (!selectedConceptId) setSelectedConceptId(concepts[0]?.id ?? 1);
         return;
       }
@@ -56,8 +55,6 @@ const CreateDesignStep3 = () => {
 
       try {
         const res = await aiGenerateText(prompt);
-        if (cancelled) return;
-
         const txt = (res.text || "").trim();
         let parsed: unknown = null;
         try {
@@ -97,8 +94,20 @@ const CreateDesignStep3 = () => {
                 }))
                 .filter((c) => c.description);
 
+        const fallback = [
+          { id: 1, label: "Concept 1", description: `A clean background with a warm glow and simple light rays to match "${theme}".` },
+          { id: 2, label: "Concept 2", description: `A calm sky with soft clouds and gentle light, matching "${theme}".` },
+          { id: 3, label: "Concept 3", description: `A bold abstract background with smooth shapes and a strong light focus for "${theme}".` },
+        ];
+
+        const hasAny = next.some((c) => c.description && c.description.trim().length > 0);
+        if (!txt || !hasAny) {
+          // AI returned empty/blank output; still show usable defaults and allow retry.
+          setError("AI returned no suggestions. Showing default concepts. You can retry.");
+        }
+
         // Ensure exactly 3 items (best-effort).
-        const filled = [...next];
+        const filled = hasAny ? [...next] : [...fallback];
         while (filled.length < 3) {
           filled.push({
             id: filled.length + 1,
@@ -111,30 +120,18 @@ const CreateDesignStep3 = () => {
         setConcepts(filled.slice(0, 3));
         setSelectedConceptId(filled[0]?.id ?? 1);
       } catch (e: unknown) {
-        if (cancelled) return;
         const msg = e instanceof Error ? e.message : "Failed to generate concepts.";
         setError(msg);
       } finally {
-        if (!cancelled) setIsAnalyzing(false);
+        setIsAnalyzing(false);
       }
-    }
+    },
+    [concepts, conceptsKey, desiredKey, eventName, selectedConceptId, setConcepts, setConceptsKey, setSelectedConceptId, theme]
+  );
 
-    run();
-    return () => {
-      cancelled = true;
-    };
-    // We intentionally re-run if theme/eventName changes.
-  }, [
-    concepts,
-    conceptsKey,
-    desiredKey,
-    eventName,
-    setConcepts,
-    setConceptsKey,
-    setSelectedConceptId,
-    selectedConceptId,
-    theme,
-  ]);
+  useEffect(() => {
+    void generateConcepts();
+  }, [generateConcepts]);
 
   const selected = selectedConceptId ?? concepts[0]?.id ?? null;
 
@@ -159,7 +156,22 @@ const CreateDesignStep3 = () => {
               {/* Analyzing theme image */}
               <div className="flex items-start justify-start mt-8">
                 <div className="ml-2 md:ml-4">
-                  <ArcLoader size={180} label={isAnalyzing ? "Analyzing..." : "Ready"} spinning={isAnalyzing} spinDurationMs={2600} />
+                  <ArcLoader
+                    size={180}
+                    label={
+                      isAnalyzing ? (
+                        <span>
+                          Analyzing
+                          <br />
+                          your theme...
+                        </span>
+                      ) : (
+                        "Ready"
+                      )
+                    }
+                    spinning={isAnalyzing}
+                    spinDurationMs={2600}
+                  />
                 </div>
               </div>
             </div>
@@ -168,8 +180,14 @@ const CreateDesignStep3 = () => {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-4">
                 {error ? (
-                  <div className="w-full md:max-w-[440px] border border-[hsl(0,0%,85%)] bg-[hsl(0,0%,97%)] rounded-2xl p-5 text-sm text-[hsl(0,0%,40%)]">
-                    {error}
+                  <div className="w-full md:max-w-[440px] border border-[hsl(0,0%,85%)] bg-[hsl(0,0%,97%)] rounded-2xl p-5">
+                    <div className="text-sm text-[hsl(0,0%,40%)]">{error}</div>
+                    <button
+                      onClick={() => void generateConcepts({ force: true })}
+                      className="mt-3 inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-medium bg-[hsl(0,0%,10%)] text-white hover:bg-[hsl(0,0%,20%)] transition-colors border-none"
+                    >
+                      Retry
+                    </button>
                   </div>
                 ) : null}
 

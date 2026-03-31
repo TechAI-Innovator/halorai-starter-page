@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
@@ -35,47 +35,43 @@ const CreateDesignStep5 = () => {
     return requiredStep1Ok && step3Ok;
   }, [conceptDescription, concepts.length, eventDetails, selectedConceptId]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function run() {
-      if (!canGenerate) {
-        setIsPreparing(false);
-        setFlyer(null);
-        setError("Missing required info. Please go back to Step 1 and Step 3 to complete your details and pick a concept.");
-        return;
-      }
-
-      setError("");
+  const generateFlyer = useCallback(async () => {
+    if (!canGenerate) {
+      setIsPreparing(false);
       setFlyer(null);
-      setIsPreparing(true);
-
-      try {
-        const res = await aiGenerateFlyer({
-          eventDetails,
-          concept: conceptDescription,
-          ministersMeta: ministers.map((m) => ({ name: m.name, title: m.title })),
-          logos: logos.map((l) => l.file),
-          ministers: ministers.map((m) => m.avatar.file),
-        });
-        if (cancelled) return;
-        const first = res.images?.[0];
-        if (!first?.base64) throw new Error("AI returned no image.");
-        setFlyer(first);
-      } catch (e: unknown) {
-        if (cancelled) return;
-        const msg = e instanceof Error ? e.message : "Failed to generate flyer.";
-        setError(msg);
-      } finally {
-        if (!cancelled) setIsPreparing(false);
-      }
+      setError("Missing required info. Please go back to Step 1 and Step 3 to complete your details and pick a concept.");
+      return;
     }
 
-    run();
-    return () => {
-      cancelled = true;
-    };
+    setError("");
+    setFlyer(null);
+    setIsPreparing(true);
+
+    try {
+      const res = await aiGenerateFlyer({
+        eventDetails,
+        concept: conceptDescription,
+        ministersMeta: ministers.map((m) => ({ name: m.name, title: m.title })),
+        logos: logos.map((l) => l.file),
+        ministers: ministers.map((m) => m.avatar.file),
+      });
+      const first = res.images?.[0];
+      if (!first?.base64) {
+        setError("AI returned no image. Please retry.");
+        return;
+      }
+      setFlyer(first);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to generate flyer.";
+      setError(msg);
+    } finally {
+      setIsPreparing(false);
+    }
   }, [canGenerate, conceptDescription, eventDetails, logos, ministers]);
+
+  useEffect(() => {
+    void generateFlyer();
+  }, [generateFlyer]);
 
   const handleDownload = async (format: "png" | "jpg" | "pdf") => {
     if (!flyer) return;
@@ -106,7 +102,15 @@ const CreateDesignStep5 = () => {
               <div className="my-20 pl-4">
                 <ArcLoader
                   size={220}
-                  label={isPreparing ? "Preparing..." : canGenerate ? "Ready" : "Missing info"}
+                  label={
+                    isPreparing ? (
+                      <img src="/Halorai Dev/Images/checkmark.svg" alt="Preparing" className="w-6 h-6" />
+                    ) : canGenerate ? (
+                      "Ready"
+                    ) : (
+                      "Missing info"
+                    )
+                  }
                   spinning={isPreparing}
                   spinDurationMs={3200}
                 />
@@ -150,8 +154,16 @@ const CreateDesignStep5 = () => {
               </div>
 
               {error ? (
-                <div className="w-full max-w-[420px] mt-3 text-xs text-[hsl(15,100%,45%)]">
-                  {error}
+                <div className="w-full max-w-[420px] mt-3">
+                  <div className="text-xs text-[hsl(15,100%,45%)]">{error}</div>
+                  {canGenerate ? (
+                    <button
+                      onClick={() => void generateFlyer()}
+                      className="mt-3 inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-medium bg-[hsl(0,0%,10%)] text-white hover:bg-[hsl(0,0%,20%)] transition-colors border-none"
+                    >
+                      Retry
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
 

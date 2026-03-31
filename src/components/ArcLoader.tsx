@@ -1,8 +1,10 @@
 import "./ArcLoader.css";
 
+import type { ReactNode } from "react";
+
 type Props = {
   size?: number;
-  label?: string;
+  label?: ReactNode;
   spinning?: boolean;
   spinDurationMs?: number;
   pinkColor?: string;
@@ -50,7 +52,7 @@ export default function ArcLoader({
       </svg>
 
       <div className="arcLoader__label">
-        <div className="text-xs md:text-sm font-medium text-[hsl(0,0%,35%)]">{label}</div>
+        <div className="text-xs md:text-sm font-medium text-[hsl(0,0%,35%)] leading-tight">{label}</div>
       </div>
     </div>
   );
