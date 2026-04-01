@@ -219,7 +219,7 @@ const CreateDesignStep3 = () => {
                           your theme...
                         </span>
                       ) : (
-                        "Ready"
+                        <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />
                       )
                     }
                     spinning={isAnalyzing}

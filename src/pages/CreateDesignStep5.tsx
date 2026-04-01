@@ -153,9 +153,9 @@ const CreateDesignStep5 = () => {
                     !assetsHydrated ? (
                       "Loading..."
                     ) : isPreparing ? (
-                      <img src="/Halorai Dev/Images/checkmark.svg" alt="Preparing" className="w-14 h-14" />
+                      "Preparing..."
                     ) : canGenerate ? (
-                      "Ready"
+                      <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />
                     ) : (
                       "Missing info"
                     )
