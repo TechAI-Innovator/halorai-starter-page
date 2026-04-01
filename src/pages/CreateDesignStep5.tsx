@@ -12,16 +12,43 @@ const CreateDesignStep5 = () => {
   const hasMessage = message.trim().length > 0;
   const [isPreparing, setIsPreparing] = useState(false);
   const [error, setError] = useState<string>("");
-  const [flyer, setFlyer] = useState<{ mimeType: string; base64: string } | null>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { eventDetails, logos, ministers, concepts, selectedConceptId } = useCreateDesign();
+  const { assetsHydrated, eventDetails, logos, ministers, concepts, selectedConceptId, flyerImage, setFlyerImage, flyerKey, setFlyerKey } =
+    useCreateDesign();
   const selectedConcept = useMemo(() => concepts.find((c) => c.id === selectedConceptId) || concepts[0], [concepts, selectedConceptId]);
   const conceptDescription = selectedConcept?.description || "";
   const filenameBase = useMemo(() => {
     return eventDetails.eventName?.trim() || eventDetails.theme?.trim() || "flyer";
   }, [eventDetails.eventName, eventDetails.theme]);
+
+  const generationKey = useMemo(() => {
+    const safeEvent = {
+      churchName: eventDetails.churchName?.trim() || "",
+      eventName: eventDetails.eventName?.trim() || "",
+      theme: eventDetails.theme?.trim() || "",
+      date: eventDetails.date?.trim() || "",
+      time: eventDetails.time?.trim() || "",
+      venue: eventDetails.venue?.trim() || "",
+      otherInfo: eventDetails.otherInfo?.trim() || "",
+    };
+    const logoMeta = (logos ?? []).map((l) => ({
+      name: l.file?.name || "",
+      size: l.file?.size || 0,
+      lastModified: l.file?.lastModified || 0,
+    }));
+    const ministerMeta = (ministers ?? []).map((m) => ({
+      name: m.name || "",
+      title: m.title || "",
+      file: {
+        name: m.avatar.file?.name || "",
+        size: m.avatar.file?.size || 0,
+        lastModified: m.avatar.file?.lastModified || 0,
+      },
+    }));
+    return JSON.stringify({ event: safeEvent, concept: conceptDescription || "", logos: logoMeta, ministers: ministerMeta });
+  }, [conceptDescription, eventDetails, logos, ministers]);
 
   const canGenerate = useMemo(() => {
     const requiredStep1Ok =
@@ -32,25 +59,35 @@ const CreateDesignStep5 = () => {
       !!eventDetails.theme?.trim();
 
     const step3Ok = !!conceptDescription.trim() && (selectedConceptId != null || concepts.length > 0);
-    return requiredStep1Ok && step3Ok;
-  }, [conceptDescription, concepts.length, eventDetails, selectedConceptId]);
+    return assetsHydrated && requiredStep1Ok && step3Ok;
+  }, [assetsHydrated, conceptDescription, concepts.length, eventDetails, selectedConceptId]);
 
-  const generateFlyer = useCallback(async () => {
+  const generateFlyer = useCallback(async (opts?: { message?: string; keepExisting?: boolean; force?: boolean }) => {
+    const force = !!opts?.force;
+    const keepExisting = !!opts?.keepExisting;
     if (!canGenerate) {
       setIsPreparing(false);
-      setFlyer(null);
+      setFlyerImage(null);
       setError("Missing required info. Please go back to Step 1 and Step 3 to complete your details and pick a concept.");
       return;
     }
 
+    // If we already have an image for this key, do not regenerate unless forced.
+    if (!force && flyerImage && flyerKey === generationKey) {
+      setError("");
+      setIsPreparing(false);
+      return;
+    }
+
     setError("");
-    setFlyer(null);
+    if (!keepExisting) setFlyerImage(null);
     setIsPreparing(true);
 
     try {
       const res = await aiGenerateFlyer({
         eventDetails,
         concept: conceptDescription,
+        message: opts?.message,
         ministersMeta: ministers.map((m) => ({ name: m.name, title: m.title })),
         logos: logos.map((l) => l.file),
         ministers: ministers.map((m) => m.avatar.file),
@@ -60,28 +97,38 @@ const CreateDesignStep5 = () => {
         setError("AI returned no image. Please retry.");
         return;
       }
-      setFlyer(first);
+      setFlyerKey(generationKey);
+      setFlyerImage(first);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to generate flyer.";
       setError(msg);
     } finally {
       setIsPreparing(false);
     }
-  }, [canGenerate, conceptDescription, eventDetails, logos, ministers]);
+  }, [canGenerate, conceptDescription, eventDetails, flyerImage, flyerKey, generationKey, logos, ministers, setFlyerImage, setFlyerKey]);
 
   useEffect(() => {
+    // Generate once when required inputs become available, unless already generated.
+    if (!canGenerate) return;
     void generateFlyer();
-  }, [generateFlyer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canGenerate, generationKey]);
 
   const handleDownload = async (format: "png" | "jpg" | "pdf") => {
-    if (!flyer) return;
+    if (!flyerImage) return;
     setIsDownloadOpen(false);
     setIsDownloading(true);
     try {
-      await downloadFlyer({ flyer, filenameBase, format });
+      await downloadFlyer({ flyer: flyerImage, filenameBase, format });
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleEdit = async () => {
+    if (!canGenerate) return;
+    // Keep current flyer visible while we request an edited version.
+    await generateFlyer({ message: message.trim(), keepExisting: true, force: true });
   };
 
   return (
@@ -103,15 +150,17 @@ const CreateDesignStep5 = () => {
                 <ArcLoader
                   size={220}
                   label={
-                    isPreparing ? (
-                      <img src="/Halorai Dev/Images/checkmark.svg" alt="Preparing" className="w-6 h-6" />
+                    !assetsHydrated ? (
+                      "Loading..."
+                    ) : isPreparing ? (
+                      <img src="/Halorai Dev/Images/checkmark.svg" alt="Preparing" className="w-14 h-14" />
                     ) : canGenerate ? (
                       "Ready"
                     ) : (
                       "Missing info"
                     )
                   }
-                  spinning={isPreparing}
+                  spinning={!assetsHydrated || isPreparing}
                   spinDurationMs={3200}
                 />
               </div>
@@ -119,9 +168,9 @@ const CreateDesignStep5 = () => {
 
             {/* Middle Column - Design Preview */}
             <div className="flex items-center justify-center">
-              {flyer ? (
+              {flyerImage ? (
                 <img
-                  src={`data:${flyer.mimeType};base64,${flyer.base64}`}
+                  src={`data:${flyerImage.mimeType};base64,${flyerImage.base64}`}
                   alt="Design Preview"
                   className="w-full max-w-[280px] h-auto rounded-xl object-contain"
                 />
@@ -169,9 +218,10 @@ const CreateDesignStep5 = () => {
 
               <div className="w-full max-w-[420px] flex items-center gap-4 mt-4">
                 <button
-                  disabled={!canGenerate}
+                  disabled={!canGenerate || isPreparing || !hasMessage}
+                  onClick={() => void handleEdit()}
                   className={`flex-1 flex items-center justify-center gap-2 border rounded-full px-6 py-3 text-sm font-regular transition-colors ${
-                    !canGenerate
+                    !canGenerate || isPreparing || !hasMessage
                       ? "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,40%)] cursor-not-allowed"
                       : "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,10%)] cursor-pointer hover:border-[hsl(0,0%,60%)]"
                   }`}
@@ -181,10 +231,10 @@ const CreateDesignStep5 = () => {
                 </button>
                 <div className="flex-1 relative">
                   <button
-                    disabled={!canGenerate || !flyer || isDownloading}
+                    disabled={!canGenerate || !flyerImage || isDownloading}
                     onClick={() => setIsDownloadOpen((v) => !v)}
                     className={`w-full flex items-center justify-center gap-2 border-none rounded-full px-6 py-3 text-sm font-regular transition-colors ${
-                      !canGenerate || !flyer || isDownloading
+                      !canGenerate || !flyerImage || isDownloading
                         ? "bg-[hsl(0,0%,60%)] text-white cursor-not-allowed"
                         : "bg-[hsl(0,0%,10%)] text-white cursor-pointer hover:bg-[hsl(0,0%,20%)]"
                     }`}
@@ -197,7 +247,7 @@ const CreateDesignStep5 = () => {
                     />
                   </button>
 
-                  {isDownloadOpen && flyer ? (
+                  {isDownloadOpen && flyerImage ? (
                     <div className="absolute right-0 mt-2 w-full bg-white border border-[hsl(0,0%,90%)] rounded-2xl shadow-lg p-2 z-20">
                       <button
                         onClick={() => void handleDownload("png")}

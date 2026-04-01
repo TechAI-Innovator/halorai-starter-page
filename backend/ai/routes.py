@@ -1,7 +1,9 @@
 import os
 import json
+import logging
+import time
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 
 from .gemini_client import generate_flyer_image_base64, generate_images_base64, generate_text, recreate_image_base64
 from .templates import pick_template_image
@@ -14,9 +16,23 @@ DEFAULT_TEXT_MODEL = os.environ.get("AI_TEXT_MODEL") or "models/gemini-3.1-pro-p
 DEFAULT_IMAGE_MODEL = os.environ.get("AI_IMAGE_MODEL") or "models/gemini-3.1-flash-image-preview"
 DEFAULT_FLYER_MODEL = os.environ.get("AI_FLYER_MODEL") or DEFAULT_IMAGE_MODEL
 
+ai_logger = logging.getLogger("ai")
+
 
 def _json_error(message: str, status: int = 400):
   return jsonify({"error": message}), status
+
+
+def _preview_text(s: str, limit: int = 320) -> str:
+  s = (s or "").replace("\r\n", "\n").replace("\r", "\n")
+  s = " ".join(s.split())  # collapse whitespace for single-line logs
+  if len(s) <= limit:
+    return s
+  return s[:limit] + "…"
+
+
+def _rid() -> str:
+  return str(getattr(g, "request_id", "") or "")
 
 
 def _guess_mime(filename: str) -> str:
@@ -36,12 +52,45 @@ def ai_text():
   prompt = payload.get("prompt", "")
   model = payload.get("model") or DEFAULT_TEXT_MODEL
 
+  t0 = time.perf_counter()
+  try:
+    print(
+      f"[AI][{_rid()}] /api/ai/text -> model={model} promptPreview={_preview_text(str(prompt), 180)!r}",
+      flush=True,
+    )
+  except Exception:
+    pass
+
   try:
     text = generate_text(prompt=prompt, model=model)
   except ValueError as e:
     return _json_error(str(e), 400)
   except Exception as e:
     return _json_error(str(e), 500)
+
+  t_ms = int((time.perf_counter() - t0) * 1000)
+  try:
+    print(
+      f"[AI][{_rid()}] /api/ai/text <- ok {t_ms}ms chars={len(text or '')} preview={_preview_text(text or '', 200)!r}",
+      flush=True,
+    )
+  except Exception:
+    pass
+
+  # Log a small preview of what the model returned.
+  ai_logger.info(
+    json.dumps(
+      {
+        "type": "ai_response",
+        "endpoint": "/api/ai/text",
+        "requestId": getattr(g, "request_id", None),
+        "model": model,
+        "chars": len(text or ""),
+        "preview": _preview_text(text or ""),
+      },
+      ensure_ascii=False,
+    )
+  )
 
   return jsonify({"model": model, "text": text})
 
@@ -76,6 +125,24 @@ def ai_image():
   except Exception as e:
     return _json_error(str(e), 500)
 
+  first = images[0] if images else None
+  if first:
+    b64 = (first.get("base64") or "")
+    ai_logger.info(
+      json.dumps(
+        {
+          "type": "ai_response",
+          "endpoint": "/api/ai/image",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "mimeType": first.get("mimeType"),
+          "base64Len": len(b64),
+          "base64Prefix": b64[:48],
+        },
+        ensure_ascii=False,
+      )
+    )
+
   return jsonify({"model": model, "images": images})
 
 
@@ -100,6 +167,24 @@ def ai_image_recreate():
     return _json_error(str(e), 400)
   except Exception as e:
     return _json_error(str(e), 500)
+
+  first = images[0] if images else None
+  if first:
+    b64 = (first.get("base64") or "")
+    ai_logger.info(
+      json.dumps(
+        {
+          "type": "ai_response",
+          "endpoint": "/api/ai/image/recreate",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "mimeType": first.get("mimeType"),
+          "base64Len": len(b64),
+          "base64Prefix": b64[:48],
+        },
+        ensure_ascii=False,
+      )
+    )
 
   return jsonify({"model": model, "images": images})
 
@@ -255,10 +340,47 @@ def ai_flyer():
     if data:
       refs.append((data, _guess_mime(f.filename)))
 
+  t0 = time.perf_counter()
+  try:
+    print(
+      f"[AI][{_rid()}] /api/ai/flyer -> model={model} templateBucket={bucket} logos={len(logos_files)} ministers={minister_count} messageChars={len(message)} promptPreview={_preview_text(prompt, 180)!r}",
+      flush=True,
+    )
+  except Exception:
+    pass
+
   try:
     images = generate_flyer_image_base64(prompt=prompt, model=model, reference_images_bytes=refs, aspect_ratio="9:16", number_of_images=1)
   except Exception as e:
     return _json_error(str(e), 500)
+
+  t_ms = int((time.perf_counter() - t0) * 1000)
+  first = images[0] if images else None
+  if first:
+    b64 = (first.get("base64") or "")
+    try:
+      print(
+        f"[AI][{_rid()}] /api/ai/flyer <- ok {t_ms}ms mimeType={first.get('mimeType')} base64Len={len(b64)}",
+        flush=True,
+      )
+    except Exception:
+      pass
+    ai_logger.info(
+      json.dumps(
+        {
+          "type": "ai_response",
+          "endpoint": "/api/ai/flyer",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "templateBucket": bucket,
+          "templateFile": template_path.name,
+          "mimeType": first.get("mimeType"),
+          "base64Len": len(b64),
+          "base64Prefix": b64[:48],
+        },
+        ensure_ascii=False,
+      )
+    )
 
   return jsonify(
     {

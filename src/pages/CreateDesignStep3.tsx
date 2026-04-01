@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
@@ -18,9 +18,44 @@ const CreateDesignStep3 = () => {
   const eventName = eventDetails.eventName?.trim() || "";
   const desiredKey = useMemo(() => `${theme}||${eventName}`.trim(), [eventName, theme]);
 
+  const hasRequiredStep1Details = useMemo(() => {
+    return (
+      !!eventDetails.churchName?.trim() &&
+      !!eventDetails.date?.trim() &&
+      !!eventDetails.time?.trim() &&
+      !!eventDetails.venue?.trim() &&
+      !!eventDetails.theme?.trim()
+    );
+  }, [eventDetails]);
+
+  // Keep latest values available without re-triggering effects.
+  const conceptsRef = useRef(concepts);
+  const conceptsKeyRef = useRef(conceptsKey);
+  const selectedConceptIdRef = useRef(selectedConceptId);
+  useEffect(() => {
+    conceptsRef.current = concepts;
+  }, [concepts]);
+  useEffect(() => {
+    conceptsKeyRef.current = conceptsKey;
+  }, [conceptsKey]);
+  useEffect(() => {
+    selectedConceptIdRef.current = selectedConceptId;
+  }, [selectedConceptId]);
+
+  const inFlightRef = useRef(false);
+
+  // If user lands here without required Step 1 data, send them back.
+  useEffect(() => {
+    if (!hasRequiredStep1Details) {
+      navigate("/create-design", { replace: true });
+    }
+  }, [hasRequiredStep1Details, navigate]);
+
   const generateConcepts = useCallback(
     async (opts?: { force?: boolean }) => {
       const force = !!opts?.force;
+      if (!hasRequiredStep1Details) return;
+      if (inFlightRef.current) return;
       if (!theme) {
         // If user skipped theme, we can't generate; keep empty and let them go back.
         setConcepts([]);
@@ -29,11 +64,12 @@ const CreateDesignStep3 = () => {
       }
 
       // If we already generated for this exact input, don't re-run.
-      if (!force && concepts.length === 3 && conceptsKey === desiredKey) {
-        if (!selectedConceptId) setSelectedConceptId(concepts[0]?.id ?? 1);
+      if (!force && conceptsKeyRef.current === desiredKey && conceptsRef.current.length === 3) {
+        if (!selectedConceptIdRef.current) setSelectedConceptId(conceptsRef.current[0]?.id ?? 1);
         return;
       }
 
+      inFlightRef.current = true;
       setError("");
       setIsAnalyzing(true);
       setConcepts([]);
@@ -121,12 +157,29 @@ const CreateDesignStep3 = () => {
         setSelectedConceptId(filled[0]?.id ?? 1);
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Failed to generate concepts.";
-        setError(msg);
+        // If we already have concepts (cached), don't show a big blocking error card.
+        if (conceptsRef.current.length > 0 && conceptsKeyRef.current === desiredKey && !force) {
+          setError("");
+          return;
+        }
+
+        // Otherwise show a short message and keep the page usable.
+        const shortMsg = msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") ? "Rate limit reached. Please wait a bit and retry." : "Failed to generate concepts. Please retry.";
+        setError(shortMsg);
       } finally {
         setIsAnalyzing(false);
+        inFlightRef.current = false;
       }
     },
-    [concepts, conceptsKey, desiredKey, eventName, selectedConceptId, setConcepts, setConceptsKey, setSelectedConceptId, theme]
+    [
+      desiredKey,
+      eventName,
+      hasRequiredStep1Details,
+      setConcepts,
+      setConceptsKey,
+      setSelectedConceptId,
+      theme,
+    ]
   );
 
   useEffect(() => {
@@ -179,12 +232,24 @@ const CreateDesignStep3 = () => {
             {/* Right Column - Concept Cards */}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-4">
-                {error ? (
+                {error && concepts.length === 0 ? (
                   <div className="w-full md:max-w-[440px] border border-[hsl(0,0%,85%)] bg-[hsl(0,0%,97%)] rounded-2xl p-5">
                     <div className="text-sm text-[hsl(0,0%,40%)]">{error}</div>
                     <button
                       onClick={() => void generateConcepts({ force: true })}
                       className="mt-3 inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-medium bg-[hsl(0,0%,10%)] text-white hover:bg-[hsl(0,0%,20%)] transition-colors border-none"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : null}
+
+                {error && concepts.length > 0 ? (
+                  <div className="w-full md:max-w-[440px] -mt-1 text-xs text-[hsl(0,0%,45%)] flex items-center justify-between">
+                    <span>{error}</span>
+                    <button
+                      onClick={() => void generateConcepts({ force: true })}
+                      className="ml-3 px-3 py-1.5 rounded-full bg-[hsl(0,0%,10%)] text-white hover:bg-[hsl(0,0%,20%)] transition-colors border-none"
                     >
                       Retry
                     </button>

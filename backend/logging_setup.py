@@ -18,12 +18,42 @@ def _ensure_logs_dir(app_root: Path) -> Path:
   return logs_dir
 
 
+class _SafeRotatingFileHandler(RotatingFileHandler):
+  """
+  Windows can throw PermissionError during rollover if another process
+  has the log file open (common with Flask debug reloader).
+  We never want logging to crash the server thread.
+  """
+
+  def doRollover(self):  # type: ignore[override]
+    try:
+      super().doRollover()
+    except PermissionError:
+      # Fallback: switch to a new file for this process.
+      try:
+        if self.stream:
+          self.stream.close()
+          self.stream = None
+      except Exception:
+        pass
+      base = Path(self.baseFilename)
+      pid = os.getpid()
+      ts = int(time.time())
+      self.baseFilename = str(base.with_name(f"{base.stem}-{pid}-{ts}{base.suffix}"))
+      try:
+        self.stream = self._open()
+      except Exception:
+        # Give up silently; console handler will still work.
+        self.stream = None
+
+
 def _make_handler(path: Path) -> RotatingFileHandler:
-  handler = RotatingFileHandler(
+  handler = _SafeRotatingFileHandler(
     filename=str(path),
-    maxBytes=5 * 1024 * 1024,
-    backupCount=5,
+    maxBytes=25 * 1024 * 1024,
+    backupCount=3,
     encoding="utf-8",
+    delay=True,
   )
   fmt = logging.Formatter(
     fmt="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -36,7 +66,7 @@ def _make_handler(path: Path) -> RotatingFileHandler:
 def setup_logging(app: Flask, *, app_root: Path) -> None:
   """
   - Logs requests + exceptions with a requestId.
-  - Writes server logs to backend/storage/logs/server.log (rotating).
+  - Writes server logs to backend/storage/logs/server-<pid>.log (rotating).
   """
   logs_dir = _ensure_logs_dir(app_root)
   level = (os.environ.get("LOG_LEVEL") or "INFO").upper()
@@ -45,8 +75,11 @@ def setup_logging(app: Flask, *, app_root: Path) -> None:
   root.setLevel(level)
 
   # Avoid duplicate handlers during dev reload.
-  if not any(isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "").endswith("server.log") for h in root.handlers):
-    root.addHandler(_make_handler(logs_dir / "server.log"))
+  # Use a per-process filename to prevent Windows file locks across reloader processes.
+  pid = os.getpid()
+  server_path = logs_dir / f"server-{pid}.log"
+  if not any(isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "").endswith(str(server_path)) for h in root.handlers):
+    root.addHandler(_make_handler(server_path))
 
   # Keep console logging too.
   if not any(isinstance(h, logging.StreamHandler) for h in root.handlers):
