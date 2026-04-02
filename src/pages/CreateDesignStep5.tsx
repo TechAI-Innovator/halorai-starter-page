@@ -59,8 +59,9 @@ const CreateDesignStep5 = () => {
       !!eventDetails.theme?.trim();
 
     const step3Ok = !!conceptDescription.trim() && (selectedConceptId != null || concepts.length > 0);
-    return assetsHydrated && requiredStep1Ok && step3Ok;
-  }, [assetsHydrated, conceptDescription, concepts.length, eventDetails, selectedConceptId]);
+    const ministersOk = ministers.length === 0 || ministers.every((m) => !!m.title.trim());
+    return assetsHydrated && requiredStep1Ok && step3Ok && ministersOk;
+  }, [assetsHydrated, conceptDescription, concepts.length, eventDetails, ministers, selectedConceptId]);
 
   const generateFlyer = useCallback(async (opts?: { message?: string; keepExisting?: boolean; force?: boolean }) => {
     const force = !!opts?.force;
@@ -153,7 +154,11 @@ const CreateDesignStep5 = () => {
                     !assetsHydrated ? (
                       "Loading..."
                     ) : isPreparing ? (
-                      "Preparing..."
+                        <span>
+                          Generating
+                          <br />
+                          your design...
+                        </span>
                     ) : canGenerate ? (
                       <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />
                     ) : (

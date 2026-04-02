@@ -10,6 +10,7 @@ const CreateDesignStep4 = () => {
   const { eventDetails, logos, setLogos, ministers, setMinisters, concepts, selectedConceptId } = useCreateDesign();
   const selectedConcept = concepts.find((c) => c.id === selectedConceptId) || concepts[0];
   const conceptDescription = selectedConcept?.description || "";
+  const missingMinisterTitle = ministers.length > 0 && ministers.some((m) => !m.title.trim());
 
   const detailLines = useMemo(() => {
     const lines = [
@@ -171,12 +172,25 @@ const CreateDesignStep4 = () => {
               </div>
               <button
                 aria-label="Create"
-                onClick={() => navigate("/create-design/step-5")}
-                className="border-none bg-transparent p-0 cursor-pointer transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shrink-0"
+                disabled={missingMinisterTitle}
+                onClick={() => {
+                  if (missingMinisterTitle) return;
+                  navigate("/create-design/step-5");
+                }}
+                className={`border-none bg-transparent p-0 transition-all duration-150 ease-out shrink-0 ${
+                  missingMinisterTitle
+                    ? "opacity-60 cursor-not-allowed"
+                    : "cursor-pointer hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
+                }`}
               >
                 <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-12 w-auto object-contain" />
               </button>
             </div>
+            {missingMinisterTitle ? (
+              <div className="mt-3 text-xs text-[hsl(15,100%,45%)]">
+                Please add a Title/Role for each uploaded minister image before creating.
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

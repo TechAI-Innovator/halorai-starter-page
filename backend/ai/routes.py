@@ -2,11 +2,12 @@ import os
 import json
 import logging
 import time
+import re
 
 from flask import Blueprint, jsonify, request, g
 
 from .gemini_client import generate_flyer_image_base64, generate_images_base64, generate_text, recreate_image_base64
-from .templates import pick_template_image
+from .templates import MAX_MINISTERS, pick_template_image
 
 
 ai_bp = Blueprint("ai", __name__)
@@ -46,6 +47,34 @@ def _guess_mime(filename: str) -> str:
   return "application/octet-stream"
 
 
+def _ai_exception_to_http(e: Exception) -> tuple[int, str]:
+  """
+  Convert bulky provider errors into a user-friendly message + HTTP status.
+  Full details are still logged server-side for debugging.
+  """
+  raw = str(e) or e.__class__.__name__
+  low = raw.lower()
+
+  # Quota / rate limit.
+  if (
+    "resource_exhausted" in low
+    or "exceeded your current quota" in low
+    or "rate limit" in low
+    or re.search(r"\b429\b", low)
+  ):
+    return 429, "AI limit reached right now. Please wait a bit and try again."
+
+  # Auth / billing / key issues.
+  if ("api key" in low and ("invalid" in low or "missing" in low)) or re.search(r"\b401\b|\b403\b", low):
+    return 401, "AI is not configured correctly (missing/invalid API key)."
+
+  # Timeouts.
+  if "timeout" in low or "deadline exceeded" in low:
+    return 504, "AI took too long to respond. Please try again."
+
+  return 500, "AI request failed. Please try again."
+
+
 @ai_bp.post("/api/ai/text")
 def ai_text():
   payload = request.get_json(silent=True) or {}
@@ -66,7 +95,20 @@ def ai_text():
   except ValueError as e:
     return _json_error(str(e), 400)
   except Exception as e:
-    return _json_error(str(e), 500)
+    status, msg = _ai_exception_to_http(e)
+    ai_logger.exception(
+      json.dumps(
+        {
+          "type": "ai_error",
+          "endpoint": "/api/ai/text",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "error": str(e),
+        },
+        ensure_ascii=False,
+      )
+    )
+    return _json_error(msg, status)
 
   t_ms = int((time.perf_counter() - t0) * 1000)
   try:
@@ -123,7 +165,20 @@ def ai_image():
   except ValueError as e:
     return _json_error(str(e), 400)
   except Exception as e:
-    return _json_error(str(e), 500)
+    status, msg = _ai_exception_to_http(e)
+    ai_logger.exception(
+      json.dumps(
+        {
+          "type": "ai_error",
+          "endpoint": "/api/ai/image",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "error": str(e),
+        },
+        ensure_ascii=False,
+      )
+    )
+    return _json_error(msg, status)
 
   first = images[0] if images else None
   if first:
@@ -166,7 +221,20 @@ def ai_image_recreate():
   except ValueError as e:
     return _json_error(str(e), 400)
   except Exception as e:
-    return _json_error(str(e), 500)
+    status, msg = _ai_exception_to_http(e)
+    ai_logger.exception(
+      json.dumps(
+        {
+          "type": "ai_error",
+          "endpoint": "/api/ai/image/recreate",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "error": str(e),
+        },
+        ensure_ascii=False,
+      )
+    )
+    return _json_error(msg, status)
 
   first = images[0] if images else None
   if first:
@@ -203,7 +271,21 @@ def ai_generate():
     except ValueError as e:
       return _json_error(str(e), 400)
     except Exception as e:
-      return _json_error(str(e), 500)
+      status, msg = _ai_exception_to_http(e)
+      ai_logger.exception(
+        json.dumps(
+          {
+            "type": "ai_error",
+            "endpoint": "/api/ai/generate",
+            "requestId": getattr(g, "request_id", None),
+            "model": model,
+            "mode": "text",
+            "error": str(e),
+          },
+          ensure_ascii=False,
+        )
+      )
+      return _json_error(msg, status)
     return jsonify({"type": "text", "model": model, "text": text})
 
   if kind in ("image", "img", "images"):
@@ -231,7 +313,21 @@ def ai_generate():
     except ValueError as e:
       return _json_error(str(e), 400)
     except Exception as e:
-      return _json_error(str(e), 500)
+      status, msg = _ai_exception_to_http(e)
+      ai_logger.exception(
+        json.dumps(
+          {
+            "type": "ai_error",
+            "endpoint": "/api/ai/generate",
+            "requestId": getattr(g, "request_id", None),
+            "model": model,
+            "mode": "image",
+            "error": str(e),
+          },
+          ensure_ascii=False,
+        )
+      )
+      return _json_error(msg, status)
     return jsonify({"type": "image", "model": model, "images": images})
 
   return _json_error('Invalid type. Use "text" or "image".', 400)
@@ -274,6 +370,21 @@ def ai_flyer():
   minister_files = request.files.getlist("ministers")
   minister_count = len(minister_files)
 
+  if minister_count > MAX_MINISTERS:
+    return _json_error(f"Too many ministers. Max allowed is {MAX_MINISTERS}.", 400)
+
+  # Validation: if minister images were uploaded, each must have a title in ministersMeta.
+  if minister_count > 0:
+    if not isinstance(ministers_meta, list) or len(ministers_meta) != minister_count:
+      return _json_error("ministersMeta must include name/title for each uploaded minister image.", 400)
+
+    for i, meta in enumerate(ministers_meta):
+      if not isinstance(meta, dict):
+        return _json_error(f"Invalid ministersMeta at index {i}.", 400)
+      title = (meta.get("title") or "").strip()
+      if not title:
+        return _json_error(f"Missing Title/Role for minister {i+1}.", 400)
+
   try:
     template_path, bucket = pick_template_image(minister_count)
     template_bytes = template_path.read_bytes()
@@ -286,7 +397,7 @@ def ai_flyer():
   event_name = (event_details.get("eventName") or "").strip()
   theme = (event_details.get("theme") or "").strip()
   date = (event_details.get("date") or "").strip()
-  time = (event_details.get("time") or "").strip()
+  event_time = (event_details.get("time") or "").strip()
   venue = (event_details.get("venue") or "").strip()
   other = (event_details.get("otherInfo") or "").strip()
 
@@ -302,32 +413,109 @@ def ai_flyer():
       ministers_lines.append(f"- Minister {i+1}: {name}")
 
   prompt_lines = [
-    "Use simple, clear English. Keep text short and neat.",
-    "Create a clean, premium church event flyer image in 9:16.",
-    "Use the first reference image as the template layout guide.",
-    "Place the provided logos and minister photos neatly on the flyer.",
-    "Keep faces natural and consistent with the photos.",
-    "Make sure the flyer looks professional and balanced.",
+    "Flyer Builder Prompt",
     "",
-    "Flyer text to include (spell correctly):",
+    "You are editing an existing flyer template using new inputs.",
+    "You are NOT designing from scratch.",
+    "",
+    "GOAL:",
+    "Recreate the reference flyer with very high visual similarity in layout, structure, and style.",
+    "",
+    "INPUTS:",
+    "- Event details (title, date, time, venue, theme, other info)",
+    "- Uploaded minister images (if any)",
+    "- Uploaded logos (if any)",
+    "- Background concept",
+    "- Reference flyer template (first reference image)",
+    "",
+    "CORE RULE:",
+    "The template layout is locked. Only replace content.",
+    "",
+    "----------------------------------",
+    "",
+    "WHAT TO PRESERVE (STRICT):",
+    "- Layout and composition",
+    "- Element positions and spacing",
+    "- Typography style and hierarchy (same font style and emphasis)",
+    "- Color grading and lighting",
+    "- Effects (glow, shadows, overlays)",
+    "",
+    "----------------------------------",
+    "",
+    "WHAT TO REPLACE:",
+    "",
+    "1. Background",
+    "- Replace the background subject/scene using the selected concept.",
+    "- Match the same lighting, depth, and cinematic style as the template.",
+    "",
+    "2. Title and event text",
+    "- Replace ALL text with the user-provided text below.",
+    "- Keep the same font style, size, and placement from the template.",
+    "- Text must be spelled exactly as provided (no paraphrasing).",
+    "",
+    "3. Minister Images",
+    "- Use ONLY the uploaded minister photos.",
+    "- Do NOT invent faces. Do NOT merge faces.",
+    "- Match the template cropping and framing for each minister slot.",
+    "- Apply the same lighting and color grading as the template so they fit naturally.",
+    "",
+    "4. Logos (if provided)",
+    "- Place naturally based on the template style.",
+    "- Maintain proper scale and clarity.",
+    "",
+    "----------------------------------",
+    "",
+    "CONSISTENCY RULE:",
+    "All elements must match the same lighting, color tone, contrast, and atmosphere.",
+    "",
+    "----------------------------------",
+    "",
+    "STRICT RULES:",
+    "- Do NOT change layout.",
+    "- Do NOT add new elements.",
+    "- Do NOT add any text that was not provided below.",
+    "- Do NOT leave any template text or faces in the final output.",
+    "- Do NOT add watermarks.",
+    "",
+    "----------------------------------",
+    "",
+    "VALIDATION BEFORE OUTPUT:",
+    "- All text matches user input exactly.",
+    "- No extra or missing elements.",
+    "- No template faces or text remain.",
+    "- Layout matches reference structure.",
+    "",
+    "If any rule fails, regenerate correctly.",
+    "",
+    "PRIORITY:",
+    "1. Match template layout",
+    "2. Use correct user content",
+    "3. Maintain visual consistency",
+    "4. Then enhance quality",
+    "",
+    "OUTPUT:",
+    "- Single clean flyer image, aspect ratio 9:16.",
+    "",
+    "----------------------------------",
+    "",
+    "USER CONTENT (use exactly):",
     f"- Church/Ministry: {church}" if church else None,
     f"- Event name: {event_name}" if event_name else None,
     f"- Theme: {theme}" if theme else None,
     f"- Date: {date}" if date else None,
-    f"- Time: {time}" if time else None,
+    f"- Time: {event_time}" if event_time else None,
     f"- Venue: {venue}" if venue else None,
     f"- Other info: {other}" if other else None,
     "",
-    "Ministers (if any):",
+    "Ministers (use uploaded photos only):",
     *ministers_lines,
     "",
     f"Background concept: {concept}" if concept else None,
     "",
-    "Do not add extra information that was not provided.",
-    "Do not add watermarks.",
-    message and f"Edit instructions: {message}",
+    message and f"Edit instructions (only if provided): {message}",
   ]
-  prompt = "\n".join([l for l in prompt_lines if l])
+  # Keep prompt tidy (no empty/None lines).
+  prompt = "\n".join([l for l in prompt_lines if isinstance(l, str) and l.strip()])
 
   # Reference images order matters: template first, then logos, then ministers.
   refs: list[tuple[bytes, str]] = [(template_bytes, template_mime)]
@@ -352,7 +540,21 @@ def ai_flyer():
   try:
     images = generate_flyer_image_base64(prompt=prompt, model=model, reference_images_bytes=refs, aspect_ratio="9:16", number_of_images=1)
   except Exception as e:
-    return _json_error(str(e), 500)
+    status, msg = _ai_exception_to_http(e)
+    ai_logger.exception(
+      json.dumps(
+        {
+          "type": "ai_error",
+          "endpoint": "/api/ai/flyer",
+          "requestId": getattr(g, "request_id", None),
+          "model": model,
+          "templateBucket": bucket,
+          "error": str(e),
+        },
+        ensure_ascii=False,
+      )
+    )
+    return _json_error(msg, status)
 
   t_ms = int((time.perf_counter() - t0) * 1000)
   first = images[0] if images else None

@@ -4,6 +4,7 @@ import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
 import { useCreateDesign, type LocalFileItem, type MinisterLocalRow } from "@/contexts/CreateDesignContext";
+import { MAX_MINISTERS } from "@/lib/limits";
 
 const placeholderPairs = [
   { placeholderName: "Pastor John Michael", placeholderTitle: "Guest Speaker" },
@@ -18,9 +19,13 @@ const CreateDesignStep2 = () => {
   const ministerInputRef = useRef<HTMLInputElement | null>(null);
 
   const { logos, setLogos, ministers, setMinisters } = useCreateDesign();
+  const [didContinue, setDidContinue] = useState(false);
 
   const canAddMoreLogos = logos.length < 2;
   const remainingLogoSlots = Math.max(0, 2 - logos.length);
+
+  const canAddMoreMinisters = ministers.length < MAX_MINISTERS;
+  const remainingMinisterSlots = Math.max(0, MAX_MINISTERS - ministers.length);
 
   const nextPlaceholder = useMemo(() => {
     return (idx: number) => placeholderPairs[idx] ?? { placeholderName: "Minister name", placeholderTitle: "Role/Title" };
@@ -60,10 +65,11 @@ const CreateDesignStep2 = () => {
   };
 
   const handleAddMinisterImages = (files: File[]) => {
-    if (!files.length) return;
+    const slice = files.slice(0, remainingMinisterSlots);
+    if (!slice.length) return;
     setMinisters((prev) => {
       const startIdx = prev.length;
-      const newRows: MinisterLocalRow[] = files.map((file, i) => {
+      const newRows: MinisterLocalRow[] = slice.map((file, i) => {
         const ph = nextPlaceholder(startIdx + i);
         const avatar: LocalFileItem = {
           id: crypto.randomUUID(),
@@ -82,6 +88,13 @@ const CreateDesignStep2 = () => {
       return [...prev, ...newRows];
     });
   };
+
+  const missingMinisterTitle = useMemo(() => {
+    if (!ministers.length) return false;
+    return ministers.some((m) => !m.title.trim());
+  }, [ministers]);
+
+  const canContinue = !missingMinisterTitle;
 
   return (
     <AppLayout>
@@ -148,7 +161,9 @@ const CreateDesignStep2 = () => {
               {/* Upload Ministers Pictures */}
               <div className="mt-8">
                 <h3 className="text-sm font-regular text-[hsl(0,0%,10%)] mb-1">Upload Ministers Pictures</h3>
-                <p className="text-xs text-[hsl(0,0%,55%)] mb-3">Click the button below to upload Minister(s) pictures</p>
+                <p className="text-xs text-[hsl(0,0%,55%)] mb-3">
+                  Click the button below to upload Minister(s) pictures (max {MAX_MINISTERS})
+                </p>
                 <div className="border border-1 border-[hsl(0,0%,90%)] bg-[hsl(0,0%,99%)] rounded-xl p-6 flex flex-col items-center gap-2">
                   <input
                     ref={ministerInputRef}
@@ -163,12 +178,23 @@ const CreateDesignStep2 = () => {
                     }}
                   />
                   <button
-                    onClick={() => ministerInputRef.current?.click()}
-                    className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors"
+                    disabled={!canAddMoreMinisters}
+                    onClick={() => {
+                      if (!canAddMoreMinisters) return;
+                      ministerInputRef.current?.click();
+                    }}
+                    className={`flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2 text-xs font-medium text-[hsl(0,0%,10%)] bg-white transition-colors ${
+                      canAddMoreMinisters ? "cursor-pointer hover:border-[hsl(0,0%,60%)]" : "opacity-60 cursor-not-allowed"
+                    }`}
                   >
                     <img src="/Halorai Dev/Icons/material-symbols_upload-rounded.svg" alt="Upload" className="w-4 h-4" />
                     Upload
                   </button>
+                  {!canAddMoreMinisters ? (
+                    <p className="text-[11px] text-[hsl(15,100%,45%)] text-center">
+                      You’ve reached the maximum of {MAX_MINISTERS} minister images.
+                    </p>
+                  ) : null}
                   <p className="text-[11px] text-[hsl(0,0%,50%)] text-center">
                     Choose images or drag & drop it here
                   </p>
@@ -182,7 +208,9 @@ const CreateDesignStep2 = () => {
             {/* Right Column - Ministers Names */}
             <div className="md:pl-12 xl:pl-14">
               <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)] mb-1">Add Ministers Name</h3>
-              <p className="text-xs text-[hsl(0,0%,55%)] mb-4">Enter Name and Title (Title is Optional)</p>
+              <p className="text-xs text-[hsl(0,0%,55%)] mb-4">
+                Enter Name and Title (Title is required if you uploaded a minister image)
+              </p>
               <div
                 className="flex flex-col gap-3 md:h-[220px] lg:h-[210px] xl:h-[200px] md:overflow-y-auto md:pr-6 ministers-scroll"
               >
@@ -202,7 +230,11 @@ const CreateDesignStep2 = () => {
                         placeholder={minister.placeholderTitle}
                         value={minister.title}
                         onChange={(e) => handleMinisterChange(minister.id, "title", e.target.value)}
-                        className="w-[70%] sm:w-[60%] lg:w-[25%] min-w-[160px] border border-[hsl(0,0%,85%)] rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white"
+                        className={`w-[70%] sm:w-[60%] lg:w-[25%] min-w-[160px] border rounded-xl px-4 py-3.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none transition-colors bg-white ${
+                          didContinue && !minister.title.trim()
+                            ? "border-[hsl(15,100%,55%)] focus:border-[hsl(15,100%,55%)]"
+                            : "border-[hsl(0,0%,85%)] focus:border-[hsl(330,100%,80%)]"
+                        }`}
                       />
                     </div>
                     <button
@@ -215,6 +247,12 @@ const CreateDesignStep2 = () => {
                   </div>
                 ))}
               </div>
+
+              {didContinue && missingMinisterTitle ? (
+                <div className="mt-3 text-xs text-[hsl(15,100%,45%)]">
+                  Please enter a Title/Role for each uploaded minister image to continue.
+                </div>
+              ) : null}
 
               {/* Navigation Buttons (kept under right column) */}
               <div className="flex items-center justify-end gap-3 mt-8">
@@ -230,8 +268,16 @@ const CreateDesignStep2 = () => {
                   Go back
                 </button>
                 <button
-                  onClick={() => navigate("/create-design/step-3")}
-                  className="flex items-center gap-2 bg-[hsl(0,0%,10%)] text-white border-none rounded-full px-4 py-3 text-xs font-medium cursor-pointer hover:bg-[hsl(0,0%,20%)] transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
+                  onClick={() => {
+                    setDidContinue(true);
+                    if (!canContinue) return;
+                    navigate("/create-design/step-3");
+                  }}
+                  className={`flex items-center gap-2 border-none rounded-full px-4 py-3 text-xs font-medium transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] ${
+                    canContinue
+                      ? "bg-[hsl(0,0%,10%)] text-white cursor-pointer hover:bg-[hsl(0,0%,20%)]"
+                      : "bg-[hsl(0,0%,60%)] text-white cursor-not-allowed"
+                  }`}
                 >
                   Continue
                   <img

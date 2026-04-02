@@ -15,7 +15,21 @@ async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Pro
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       const requestId = res.headers.get("x-request-id") || undefined;
-      const msg = text || `Request failed (${res.status})`;
+      let msg = text || `Request failed (${res.status})`;
+      try {
+        const parsed = JSON.parse(text) as unknown;
+        if (parsed && typeof parsed === "object" && "error" in (parsed as any) && typeof (parsed as any).error === "string") {
+          msg = (parsed as any).error;
+        }
+      } catch {
+        // ignore
+      }
+
+      // Make provider/rate-limit errors user-friendly.
+      const low = msg.toLowerCase();
+      if (res.status === 429 || low.includes("resource_exhausted") || low.includes("rate limit") || low.includes("quota")) {
+        msg = "AI limit reached right now. Please wait a bit and try again.";
+      }
       log("error", "api.request_failed", {
         url: String(input),
         method: init?.method || "GET",

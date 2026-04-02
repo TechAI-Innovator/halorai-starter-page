@@ -76,14 +76,22 @@ const CreateDesignStep3 = () => {
       setSelectedConceptId(null);
 
       const prompt = [
-        "You are a creative director for church event flyers.",
-        "Use simple, clear English. Keep sentences short. Avoid big or complex words.",
+        "Generate 3 powerful visual concepts based on the provided church event theme.",
+        "Goal: translate the theme into strong, symbolic imagery for a flyer background idea.",
         `Theme: ${JSON.stringify(theme)}`,
-        eventName ? `Event name: ${JSON.stringify(eventName)}` : "",
+        eventName ? `Event name (optional context): ${JSON.stringify(eventName)}` : "",
         "",
-        "Generate EXACTLY 3 distinct background image concepts for a flyer.",
-        "Each concept should be a single vivid sentence describing the background scene (no text overlays, no logos).",
-        "Return STRICT JSON ONLY in this schema:",
+        "Instructions (follow strictly):",
+        "- Each concept must represent the theme using a clear visual metaphor (a real scene).",
+        "- Focus on emotionally strong and visually striking scenes.",
+        "- Avoid generic ideas; each concept must feel unique and meaningful.",
+        "- Keep descriptions short and vivid (1–2 lines each).",
+        "- Do NOT mention design elements like text, layout, or typography.",
+        "- Focus only on the main visual scene or subject.",
+        "- Make it cinematic and dramatic (not ordinary or everyday scenes).",
+        "- Use simple, clear English.",
+        "",
+        "Output (STRICT): Return ONLY valid JSON. No markdown. No extra keys.",
         '[{"label":"Concept 1","description":"..."},{"label":"Concept 2","description":"..."},{"label":"Concept 3","description":"..."}]',
       ]
         .filter(Boolean)
