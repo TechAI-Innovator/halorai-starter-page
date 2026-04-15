@@ -1,0 +1,24 @@
+# Render Blueprint — deploy the Flask API as a Web Service.
+# Dashboard: New → Blueprint → connect repo, or paste this file.
+#
+# After deploy: set env vars in Render (GEMINI_API_KEY, OPENAI_API_KEY, CORS_ORIGINS, AI_*, etc.)
+# CORS_ORIGINS must list your Vercel URL(s), comma-separated (no "*").
+# Point the frontend VITE_BACKEND_ORIGIN to this service URL.
+
+services:
+  - type: web
+    name: halorai-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --config gunicorn_config.py app:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: GUNICORN_TIMEOUT
+        value: "120"
+      - key: CORS_ORIGINS
+        sync: false

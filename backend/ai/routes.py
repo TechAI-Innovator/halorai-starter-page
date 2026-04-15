@@ -6,7 +6,7 @@ import re
 
 from flask import Blueprint, jsonify, request, g
 
-from .gemini_client import generate_flyer_image_base64, generate_images_base64, generate_text, recreate_image_base64
+from .ai_client import generate_flyer_image_base64, generate_images_base64, generate_text, recreate_image_base64
 from .templates import MAX_MINISTERS, pick_template_image
 
 
@@ -401,16 +401,78 @@ def ai_flyer():
   venue = (event_details.get("venue") or "").strip()
   other = (event_details.get("otherInfo") or "").strip()
 
-  ministers_lines = []
-  for i, meta in enumerate(ministers_meta[: len(minister_files)]):
-    if not isinstance(meta, dict):
-      continue
+  # Read upload bytes once; order is fixed for both prompt text and `refs`.
+  logo_refs: list[tuple[bytes, str]] = []
+  for f in logos_files:
+    data = f.read()
+    if data:
+      logo_refs.append((data, _guess_mime(f.filename)))
+
+  minister_refs: list[tuple[bytes, str]] = []
+  for f in minister_files:
+    data = f.read()
+    if data:
+      minister_refs.append((data, _guess_mime(f.filename)))
+
+  n_logos = len(logo_refs)
+  n_minister_imgs = len(minister_refs)
+
+  # 1-based indices: #1 template, #2..#(1+n_logos) logos, then ministers.
+  ref_order_lines: list[str] = [
+    "REFERENCE IMAGE ORDER (STRICT — DO NOT MIX OR SWAP):",
+    "The model receives reference images in this exact 1-based order. Each index maps to exactly one use.",
+    "",
+    '- Reference image #1: FLYER TEMPLATE — layout, composition, and typography style guide ONLY.',
+    "  Use it for structure and placement. Do NOT keep template placeholder faces in the final image.",
+    "  Replace each minister/person region using ONLY the minister photo with the matching index below.",
+    "",
+    "CRITICAL — DO NOT CONFUSE LOGOS WITH PEOPLE:",
+    "- Logo reference images are brand marks (symbols/text marks). They are NOT faces and NOT ministers.",
+    "- Minister reference images are photos of people. They are NOT logos.",
+    "- Never place a logo image inside a minister/person frame.",
+    "- Never place a minister photo where a logo belongs.",
+    "",
+  ]
+
+  for j in range(n_logos):
+    idx = 2 + j
+    ref_order_lines.append(
+      f"- Reference image #{idx}: LOGO #{j + 1} — organization/church logo graphic ONLY. "
+      "Not a person. Not a minister. Use only as a small brand mark where the template has logo space."
+    )
+
+  minister_base_idx = 2 + n_logos
+  ministers_lines: list[str] = []
+  for k in range(minister_count):
+    meta = ministers_meta[k] if k < len(ministers_meta) and isinstance(ministers_meta[k], dict) else {}
     name = (meta.get("name") or "").strip()
     title = (meta.get("title") or "").strip()
-    if name and title:
-      ministers_lines.append(f"- Minister {i+1}: {name} ({title})")
+    ref_idx = minister_base_idx + k
+    role_line = f"Reference image #{ref_idx} = MINISTER PHOTO for slot #{k + 1} ONLY."
+    if title and name:
+      ministers_lines.append(f"- Slot {k + 1} ({role_line}): {name} — role/title on flyer: \"{title}\"")
+    elif title:
+      ministers_lines.append(f"- Slot {k + 1} ({role_line}): role/title on flyer: \"{title}\"")
     elif name:
-      ministers_lines.append(f"- Minister {i+1}: {name}")
+      ministers_lines.append(f"- Slot {k + 1} ({role_line}): {name}")
+
+    if k < n_minister_imgs:
+      ref_order_lines.append(
+        f"- Reference image #{ref_idx}: MINISTER PHOTO #{k + 1} ONLY — minister slot #{k + 1} on the template."
+        + (f' This face/body MUST be labeled on the flyer as: \"{title}\"' if title else "")
+        + (f' (name if shown: \"{name}\")' if name else "")
+        + ". Use ONLY this file for this slot — never for another slot, never as a logo."
+      )
+
+  if n_minister_imgs == 1:
+    minister_slot_summary = f"- Follow REFERENCE IMAGE ORDER: the only minister photo is reference image #{minister_base_idx} — use it for minister slot 1 only."
+  elif n_minister_imgs > 1:
+    minister_slot_summary = (
+      f"- Follow REFERENCE IMAGE ORDER: minister slots 1–{n_minister_imgs} map to reference images "
+      f"#{minister_base_idx}–#{minister_base_idx + n_minister_imgs - 1} in upload order (one slot per image, no swaps)."
+    )
+  else:
+    minister_slot_summary = "- No minister photo references were uploaded."
 
   prompt_lines = [
     "Flyer Builder Prompt",
@@ -423,10 +485,10 @@ def ai_flyer():
     "",
     "INPUTS:",
     "- Event details (title, date, time, venue, theme, other info)",
-    "- Uploaded minister images (if any)",
-    "- Uploaded logos (if any)",
+    "- Reference images (exact order and meaning — see next section)",
     "- Background concept",
-    "- Reference flyer template (first reference image)",
+    "",
+    *ref_order_lines,
     "",
     "CORE RULE:",
     "The template layout is locked. Only replace content.",
@@ -454,14 +516,21 @@ def ai_flyer():
     "- Text must be spelled exactly as provided (no paraphrasing).",
     "",
     "3. Minister Images",
-    "- Use ONLY the uploaded minister photos.",
-    "- Do NOT invent faces. Do NOT merge faces.",
+    minister_slot_summary,
+    "- Do NOT invent faces. Do NOT merge faces. Do NOT swap ministers between slots.",
     "- Match the template cropping and framing for each minister slot.",
     "- Apply the same lighting and color grading as the template so they fit naturally.",
     "",
     "4. Logos (if provided)",
-    "- Place naturally based on the template style.",
-    "- Maintain proper scale and clarity.",
+    *(
+      [
+        f"- Follow REFERENCE IMAGE ORDER: logos use reference images #2 through #{1 + n_logos} in upload order (template is always #1).",
+        "- Place naturally based on the template style.",
+        "- Maintain proper scale and clarity.",
+      ]
+      if n_logos > 0
+      else ["- No logo reference images were uploaded."]
+    ),
     "",
     "----------------------------------",
     "",
@@ -507,7 +576,7 @@ def ai_flyer():
     f"- Venue: {venue}" if venue else None,
     f"- Other info: {other}" if other else None,
     "",
-    "Ministers (use uploaded photos only):",
+    "Ministers (slot → reference image → text on flyer):",
     *ministers_lines,
     "",
     f"Background concept: {concept}" if concept else None,
@@ -517,16 +586,8 @@ def ai_flyer():
   # Keep prompt tidy (no empty/None lines).
   prompt = "\n".join([l for l in prompt_lines if isinstance(l, str) and l.strip()])
 
-  # Reference images order matters: template first, then logos, then ministers.
-  refs: list[tuple[bytes, str]] = [(template_bytes, template_mime)]
-  for f in logos_files:
-    data = f.read()
-    if data:
-      refs.append((data, _guess_mime(f.filename)))
-  for f in minister_files:
-    data = f.read()
-    if data:
-      refs.append((data, _guess_mime(f.filename)))
+  # Reference images order MUST match REFERENCE IMAGE ORDER in the prompt: template, logos, ministers.
+  refs: list[tuple[bytes, str]] = [(template_bytes, template_mime)] + logo_refs + minister_refs
 
   t0 = time.perf_counter()
   try:

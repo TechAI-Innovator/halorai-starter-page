@@ -15,10 +15,9 @@ const CreateDesignStep5 = () => {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { assetsHydrated, eventDetails, logos, ministers, concepts, selectedConceptId, flyerImage, setFlyerImage, flyerKey, setFlyerKey } =
+  const { assetsHydrated, eventDetails, logos, ministers, concepts, selectedConceptId, selectedConceptDescription, flyerImage, setFlyerImage, flyerKey, setFlyerKey } =
     useCreateDesign();
-  const selectedConcept = useMemo(() => concepts.find((c) => c.id === selectedConceptId) || concepts[0], [concepts, selectedConceptId]);
-  const conceptDescription = selectedConcept?.description || "";
+  const conceptDescription = selectedConceptDescription;
   const filenameBase = useMemo(() => {
     return eventDetails.eventName?.trim() || eventDetails.theme?.trim() || "flyer";
   }, [eventDetails.eventName, eventDetails.theme]);

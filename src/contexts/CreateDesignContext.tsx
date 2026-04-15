@@ -17,6 +17,9 @@ export type FlyerConcept = {
   description: string;
 };
 
+/** Reserved id for user-written background concept (not from AI list). */
+export const CUSTOM_CONCEPT_ID = 4;
+
 export type LocalFileItem = {
   id: string;
   file: File;
@@ -58,6 +61,13 @@ type CreateDesignState = {
   selectedConceptId: number | null;
   setSelectedConceptId: (next: number | null) => void;
 
+  /** Text for the "Custom" option; used when selectedConceptId === CUSTOM_CONCEPT_ID */
+  customConceptText: string;
+  setCustomConceptText: (next: string) => void;
+
+  /** Resolved description for Step 4 / Step 5 (AI concept or custom text). */
+  selectedConceptDescription: string;
+
   flyerKey: string;
   setFlyerKey: (next: string) => void;
 
@@ -81,6 +91,7 @@ const LS_EVENT_DETAILS = "createDesign_eventDetails";
 const LS_CONCEPTS = "createDesign_concepts";
 const LS_CONCEPTS_KEY = "createDesign_conceptsKey";
 const LS_SELECTED_CONCEPT_ID = "createDesign_selectedConceptId";
+const LS_CUSTOM_CONCEPT_TEXT = "createDesign_customConceptText";
 const LS_FLYER_KEY = "createDesign_flyerKey";
 const LS_LOGOS = "createDesign_logos_v1";
 const LS_MINISTERS = "createDesign_ministers_v1";
@@ -123,6 +134,7 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
     const n = Number(raw);
     return Number.isFinite(n) ? n : null;
   });
+  const [customConceptText, setCustomConceptText] = useState<string>(() => localStorage.getItem(LS_CUSTOM_CONCEPT_TEXT) || "");
   const [flyerKey, setFlyerKey] = useState<string>(() => localStorage.getItem(LS_FLYER_KEY) || "");
   const [flyerImage, setFlyerImage] = useState<FlyerImage | null>(null);
 
@@ -217,8 +229,18 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
   }, [selectedConceptId]);
 
   useEffect(() => {
+    localStorage.setItem(LS_CUSTOM_CONCEPT_TEXT, customConceptText);
+  }, [customConceptText]);
+
+  useEffect(() => {
     localStorage.setItem(LS_FLYER_KEY, flyerKey);
   }, [flyerKey]);
+
+  const selectedConceptDescription = useMemo(() => {
+    if (selectedConceptId === CUSTOM_CONCEPT_ID) return customConceptText.trim();
+    const c = concepts.find((x) => x.id === selectedConceptId);
+    return (c?.description || concepts[0]?.description || "").trim();
+  }, [concepts, customConceptText, selectedConceptId]);
 
   useEffect(() => {
     if (!assetsHydrated) return;
@@ -307,12 +329,27 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
       setConcepts,
       selectedConceptId,
       setSelectedConceptId,
+      customConceptText,
+      setCustomConceptText,
+      selectedConceptDescription,
       flyerKey,
       setFlyerKey,
       flyerImage,
       setFlyerImage,
     }),
-    [assetsHydrated, concepts, conceptsKey, eventDetails, flyerImage, flyerKey, logos, ministers, selectedConceptId]
+    [
+      assetsHydrated,
+      concepts,
+      conceptsKey,
+      customConceptText,
+      eventDetails,
+      flyerImage,
+      flyerKey,
+      logos,
+      ministers,
+      selectedConceptDescription,
+      selectedConceptId,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

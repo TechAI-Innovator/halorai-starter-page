@@ -82,8 +82,36 @@ _ensure_dirs()
 # Load backend/.env if present (for GEMINI_API_KEY, etc.)
 load_dotenv(dotenv_path=APP_ROOT / ".env", override=False)
 
+
+def _cors_origins() -> list[str]:
+  """
+  Allowed browser origins (scheme + host + port). No wildcard.
+  Set CORS_ORIGINS to match where the SPA is served (e.g. Vercel), comma-separated.
+  Example: https://myapp.vercel.app,https://www.myapp.com
+  If unset, local Vite defaults apply so dev works without extra config.
+  """
+  raw = (os.environ.get("CORS_ORIGINS") or os.environ.get("FRONTEND_ORIGIN") or "").strip()
+  if raw:
+    return [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
+  return [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+  ]
+
+
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}})
+_cors = _cors_origins()
+CORS(
+  app,
+  resources={
+    r"/api/*": {"origins": _cors},
+    r"/uploads/*": {"origins": _cors},
+  },
+)
 app.register_blueprint(ai_bp)
 setup_logging(app, app_root=APP_ROOT)
 
@@ -182,5 +210,6 @@ def uploads(filename: str):
 
 if __name__ == "__main__":
   port = int(os.environ.get("PORT", "5000"))
-  app.run(host="0.0.0.0", port=port, debug=True)
+  debug = os.environ.get("FLASK_DEBUG", "").strip().lower() in ("1", "true", "yes")
+  app.run(host="0.0.0.0", port=port, debug=debug)
 

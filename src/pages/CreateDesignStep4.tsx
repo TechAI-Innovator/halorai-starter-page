@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
-import { useCreateDesign } from "@/contexts/CreateDesignContext";
+import { CUSTOM_CONCEPT_ID, useCreateDesign } from "@/contexts/CreateDesignContext";
 
 const CreateDesignStep4 = () => {
   const navigate = useNavigate();
-  const { eventDetails, logos, setLogos, ministers, setMinisters, concepts, selectedConceptId } = useCreateDesign();
-  const selectedConcept = concepts.find((c) => c.id === selectedConceptId) || concepts[0];
-  const conceptDescription = selectedConcept?.description || "";
+  const { eventDetails, logos, setLogos, ministers, setMinisters, concepts, selectedConceptId, selectedConceptDescription } =
+    useCreateDesign();
+  const conceptLabel =
+    selectedConceptId === CUSTOM_CONCEPT_ID
+      ? "Custom"
+      : concepts.find((c) => c.id === selectedConceptId)?.label || concepts[0]?.label || "";
   const missingMinisterTitle = ministers.length > 0 && ministers.some((m) => !m.title.trim());
 
   const detailLines = useMemo(() => {
@@ -168,7 +171,8 @@ const CreateDesignStep4 = () => {
             <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-3">Background Concept</h3>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <div className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-5 py-3 text-sm text-[hsl(0,0%,45%)] bg-white">
-                {conceptDescription}
+                {conceptLabel ? <span className="block text-xs font-medium text-[hsl(0,0%,55%)] mb-1">{conceptLabel}</span> : null}
+                {selectedConceptDescription}
               </div>
               <button
                 aria-label="Create"
