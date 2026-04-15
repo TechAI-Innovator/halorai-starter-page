@@ -350,7 +350,7 @@ const CreateDesignStep3 = () => {
                   Go back
                 </button>
                 <button
-                  onClick={() => navigate("/create-design/step-4")}
+                  onClick={() => navigate("/create-design/step-3ii")}
                   disabled={isAnalyzing || !canContinue}
                   className={`flex items-center gap-2 border-none rounded-full px-4 py-3 text-xs font-medium transition-all duration-150 ease-out hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] ${
                     isAnalyzing || !canContinue
