@@ -511,11 +511,12 @@ const CreateDesignStep3ii = () => {
                 </div>
               </div>
 
+              <div className="mt-6" />
               <div className="mt-auto flex items-center justify-end gap-3 pt-6">
                 <button
                   type="button"
                   onClick={() => navigate("/create-design/step-3")}
-                  className="flex cursor-pointer items-center gap-2 rounded-full border-none bg-[hsl(0,0%,95%)] px-4 py-3 text-xs font-medium text-[hsl(0,0%,10%)] transition-all duration-150 ease-out hover:scale-[1.01] hover:opacity-90 active:scale-[0.99]"
+                  className="flex cursor-pointer items-center gap-2 rounded-full border-none bg-[hsl(0,0%,95%)] px-4 py-3 text-xs font-medium text-[hsl(0,0%,10%)] whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] hover:opacity-90 active:scale-[0.99]"
                 >
                   <img src="/Halorai Dev/Icons/weui_arrow-outlined.svg" alt="Back" className="h-3.5 w-3.5 brightness-0" />
                   Go back
@@ -527,7 +528,7 @@ const CreateDesignStep3ii = () => {
                     setBackgroundRefinementNotes(message.trim());
                     navigate("/create-design/step-4");
                   }}
-                  className={`flex items-center gap-2 rounded-full border-none px-4 py-3 text-xs font-medium text-white transition-all duration-150 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+                  className={`flex items-center gap-2 rounded-full border-none px-4 py-3 text-xs font-medium text-white whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] active:scale-[0.99] ${
                     !assetsHydrated || isGenerating || !backgroundPreviewImage
                       ? "cursor-not-allowed bg-[hsl(0,0%,60%)]"
                       : "cursor-pointer bg-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,20%)]"
