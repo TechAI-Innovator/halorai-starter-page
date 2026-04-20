@@ -73,6 +73,15 @@ type CreateDesignState = {
 
   flyerImage: FlyerImage | null;
   setFlyerImage: (next: FlyerImage | null) => void;
+
+  /** Step 3ii: AI-generated background preview (9:16), not the final flyer. */
+  backgroundPreviewImage: FlyerImage | null;
+  setBackgroundPreviewImage: (next: FlyerImage | null) => void;
+  backgroundPreviewKey: string;
+  setBackgroundPreviewKey: (next: string) => void;
+  /** Optional notes from Step 3ii textarea when continuing (refinements). */
+  backgroundRefinementNotes: string;
+  setBackgroundRefinementNotes: (next: string) => void;
 };
 
 const defaultEventDetails: EventDetails = {
@@ -96,8 +105,12 @@ const LS_FLYER_KEY = "createDesign_flyerKey";
 const LS_LOGOS = "createDesign_logos_v1";
 const LS_MINISTERS = "createDesign_ministers_v1";
 const LS_FLYER_IMAGE_META = "createDesign_flyerImageMeta_v1";
+const LS_BACKGROUND_PREVIEW_META = "createDesign_backgroundPreviewMeta_v1";
+const LS_BACKGROUND_PREVIEW_KEY = "createDesign_backgroundPreviewKey_v1";
+const LS_BACKGROUND_REFINEMENT = "createDesign_backgroundRefinement_v1";
 
 const IDB_FLYER_IMAGE = "flyerImage_v1";
+const IDB_BACKGROUND_PREVIEW = "backgroundPreview_v1";
 
 type StoredFileRef = { id: string; name: string; type: string; lastModified: number };
 type StoredMinisterRow = {
@@ -137,6 +150,11 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
   const [customConceptText, setCustomConceptText] = useState<string>(() => localStorage.getItem(LS_CUSTOM_CONCEPT_TEXT) || "");
   const [flyerKey, setFlyerKey] = useState<string>(() => localStorage.getItem(LS_FLYER_KEY) || "");
   const [flyerImage, setFlyerImage] = useState<FlyerImage | null>(null);
+  const [backgroundPreviewImage, setBackgroundPreviewImage] = useState<FlyerImage | null>(null);
+  const [backgroundPreviewKey, setBackgroundPreviewKey] = useState<string>(() => localStorage.getItem(LS_BACKGROUND_PREVIEW_KEY) || "");
+  const [backgroundRefinementNotes, setBackgroundRefinementNotes] = useState<string>(
+    () => localStorage.getItem(LS_BACKGROUND_REFINEMENT) || ""
+  );
 
   const prevLogoIdsRef = useRef<Set<string>>(new Set());
   const prevMinisterAvatarIdsRef = useRef<Set<string>>(new Set());
@@ -161,6 +179,7 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
         const storedLogos = _safeJsonParse<StoredFileRef[]>(localStorage.getItem(LS_LOGOS)) ?? [];
         const storedMinisters = _safeJsonParse<StoredMinisterRow[]>(localStorage.getItem(LS_MINISTERS)) ?? [];
         const flyerMeta = _safeJsonParse<{ mimeType: string }>(localStorage.getItem(LS_FLYER_IMAGE_META));
+        const bgMeta = _safeJsonParse<{ mimeType: string }>(localStorage.getItem(LS_BACKGROUND_PREVIEW_META));
 
         const hydratedLogos: LocalFileItem[] = [];
         for (const ref of storedLogos) {
@@ -192,10 +211,20 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
           }
         }
 
+        let hydratedBg: FlyerImage | null = null;
+        if (bgMeta?.mimeType) {
+          const blob = await getBlob(IDB_BACKGROUND_PREVIEW);
+          if (blob) {
+            const b64 = await blobToBase64(blob);
+            hydratedBg = { mimeType: bgMeta.mimeType || blob.type || "image/png", base64: b64 };
+          }
+        }
+
         if (cancelled) return;
         setLogos(hydratedLogos);
         setMinisters(hydratedMinisters);
         setFlyerImage(hydratedFlyer);
+        setBackgroundPreviewImage(hydratedBg);
 
         prevLogoIdsRef.current = new Set(hydratedLogos.map((l) => l.id));
         prevMinisterAvatarIdsRef.current = new Set(hydratedMinisters.map((m) => m.avatar.id));
@@ -235,6 +264,34 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     localStorage.setItem(LS_FLYER_KEY, flyerKey);
   }, [flyerKey]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_BACKGROUND_REFINEMENT, backgroundRefinementNotes);
+  }, [backgroundRefinementNotes]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_BACKGROUND_PREVIEW_KEY, backgroundPreviewKey);
+  }, [backgroundPreviewKey]);
+
+  useEffect(() => {
+    if (!assetsHydrated) return;
+    if (!backgroundPreviewImage) {
+      localStorage.removeItem(LS_BACKGROUND_PREVIEW_META);
+      void del(IDB_BACKGROUND_PREVIEW);
+      return;
+    }
+    localStorage.setItem(LS_BACKGROUND_PREVIEW_META, JSON.stringify({ mimeType: backgroundPreviewImage.mimeType }));
+    try {
+      const bin = atob(backgroundPreviewImage.base64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      void putBlob(IDB_BACKGROUND_PREVIEW, new Blob([bytes], { type: backgroundPreviewImage.mimeType || "image/png" }), {
+        name: "background-preview",
+      });
+    } catch {
+      // ignore
+    }
+  }, [assetsHydrated, backgroundPreviewImage]);
 
   const selectedConceptDescription = useMemo(() => {
     if (selectedConceptId === CUSTOM_CONCEPT_ID) return customConceptText.trim();
@@ -336,9 +393,18 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
       setFlyerKey,
       flyerImage,
       setFlyerImage,
+      backgroundPreviewImage,
+      setBackgroundPreviewImage,
+      backgroundPreviewKey,
+      setBackgroundPreviewKey,
+      backgroundRefinementNotes,
+      setBackgroundRefinementNotes,
     }),
     [
       assetsHydrated,
+      backgroundPreviewImage,
+      backgroundPreviewKey,
+      backgroundRefinementNotes,
       concepts,
       conceptsKey,
       customConceptText,

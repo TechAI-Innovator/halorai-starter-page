@@ -15,8 +15,20 @@ const CreateDesignStep5 = () => {
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { assetsHydrated, eventDetails, logos, ministers, concepts, selectedConceptId, selectedConceptDescription, flyerImage, setFlyerImage, flyerKey, setFlyerKey } =
-    useCreateDesign();
+  const {
+    assetsHydrated,
+    eventDetails,
+    logos,
+    ministers,
+    concepts,
+    selectedConceptId,
+    selectedConceptDescription,
+    flyerImage,
+    setFlyerImage,
+    flyerKey,
+    setFlyerKey,
+    backgroundRefinementNotes,
+  } = useCreateDesign();
   const conceptDescription = selectedConceptDescription;
   const filenameBase = useMemo(() => {
     return eventDetails.eventName?.trim() || eventDetails.theme?.trim() || "flyer";
@@ -46,8 +58,14 @@ const CreateDesignStep5 = () => {
         lastModified: m.avatar.file?.lastModified || 0,
       },
     }));
-    return JSON.stringify({ event: safeEvent, concept: conceptDescription || "", logos: logoMeta, ministers: ministerMeta });
-  }, [conceptDescription, eventDetails, logos, ministers]);
+    return JSON.stringify({
+      event: safeEvent,
+      concept: conceptDescription || "",
+      backgroundRefinement: backgroundRefinementNotes?.trim() || "",
+      logos: logoMeta,
+      ministers: ministerMeta,
+    });
+  }, [backgroundRefinementNotes, conceptDescription, eventDetails, logos, ministers]);
 
   const canGenerate = useMemo(() => {
     const requiredStep1Ok =
@@ -170,17 +188,19 @@ const CreateDesignStep5 = () => {
               </div>
             </div>
 
-            {/* Middle Column - Design Preview */}
+            {/* Middle Column - Design Preview (Instagram-style 4:5 portrait) */}
             <div className="flex items-center justify-center">
-              {flyerImage ? (
-                <img
-                  src={`data:${flyerImage.mimeType};base64,${flyerImage.base64}`}
-                  alt="Design Preview"
-                  className="w-full max-w-[280px] h-auto rounded-xl object-contain"
-                />
-              ) : (
-                <div className="w-full max-w-[280px] aspect-[9/16] rounded-xl bg-transparent" aria-label="Design preview loading" />
-              )}
+              <div className="relative w-full max-w-[280px] aspect-[4/5] overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)]">
+                {flyerImage ? (
+                  <img
+                    src={`data:${flyerImage.mimeType};base64,${flyerImage.base64}`}
+                    alt="Design Preview"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-transparent" aria-label="Design preview loading" />
+                )}
+              </div>
             </div>
 
             {/* Right Column - Chat/Edit input + Buttons */}

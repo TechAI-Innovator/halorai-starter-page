@@ -209,7 +209,7 @@ const CreateDesignStep2 = () => {
             <div className="md:pl-12 xl:pl-14">
               <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)] mb-1">Add Ministers Name</h3>
               <p className="text-xs text-[hsl(0,0%,55%)] mb-4">
-                Enter Name and Title (Title is required if you uploaded a minister image)
+                Enter Name and Title (Title is optional)
               </p>
               <div
                 className="flex flex-col gap-3 md:h-[220px] lg:h-[210px] xl:h-[200px] md:overflow-y-auto md:pr-6 ministers-scroll"
