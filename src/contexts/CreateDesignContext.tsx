@@ -42,15 +42,15 @@ export type FlyerImage = {
 
 type CreateDesignState = {
   eventDetails: EventDetails;
-  setEventDetails: (next: EventDetails) => void;
+  setEventDetails: React.Dispatch<React.SetStateAction<EventDetails>>;
 
   assetsHydrated: boolean;
 
   logos: LocalFileItem[];
-  setLogos: (next: LocalFileItem[]) => void;
+  setLogos: React.Dispatch<React.SetStateAction<LocalFileItem[]>>;
 
   ministers: MinisterLocalRow[];
-  setMinisters: (next: MinisterLocalRow[]) => void;
+  setMinisters: React.Dispatch<React.SetStateAction<MinisterLocalRow[]>>;
 
   conceptsKey: string;
   setConceptsKey: (next: string) => void;
