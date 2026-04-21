@@ -312,9 +312,9 @@ const CreateDesignStep3ii = () => {
 
       <div className="px-4 xs:px-0">
         <div className="border border-[hsl(0,0%,80%)] rounded-2xl p-6 md:p-8">
-          <div className="grid grid-cols-1 gap-y-8 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] md:gap-x-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-y-8 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] md:gap-x-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)] max-md:items-center max-md:justify-items-center">
             {/* Left: background preview + overlay controls */}
-            <div className="flex min-w-0 w-full max-w-full flex-col">
+            <div className="flex min-w-0 w-full max-w-full flex-col max-md:items-center">
               <div className="relative mx-auto aspect-[4/5] w-full max-w-[min(100%,20rem)] rounded-2xl bg-[hsl(0,0%,88%)] ring-1 ring-[hsl(0,0%,90%)] md:mx-0 md:max-w-none">
                 <div className="absolute inset-0 overflow-hidden rounded-2xl">
                   {backgroundPreviewImage ? (
@@ -436,7 +436,7 @@ const CreateDesignStep3ii = () => {
             </div>
 
             {/* Right Column - Create Background Concept */}
-            <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col max-md:items-center max-md:w-full">
               <h2 className="text-lg md:text-xl font-bold text-[hsl(0,0%,10%)] mb-2">
                 Edit Background Concept
               </h2>
@@ -511,35 +511,34 @@ const CreateDesignStep3ii = () => {
                 </div>
               </div>
 
+              {/* Buttons - inside the right column on mobile so they stay within content bounds */}
+              <div className="flex items-center justify-end gap-3 pt-6 w-full max-md:max-w-[min(100%,22.5rem)]">
+                <button
+                  type="button"
+                  onClick={() => navigate("/create-design/step-3")}
+                  className="flex cursor-pointer items-center gap-2 rounded-full border-none bg-[hsl(0,0%,95%)] px-4 py-3 text-xs font-medium text-[hsl(0,0%,10%)] whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] hover:opacity-90 active:scale-[0.99]"
+                >
+                  <img src="/Halorai Dev/Icons/weui_arrow-outlined.svg" alt="Back" className="h-3.5 w-3.5 brightness-0" />
+                  Go back
+                </button>
+                <button
+                  type="button"
+                  disabled={!assetsHydrated || isGenerating || !backgroundPreviewImage}
+                  onClick={() => {
+                    setBackgroundRefinementNotes(message.trim());
+                    navigate("/create-design/step-4");
+                  }}
+                  className={`flex items-center gap-2 rounded-full border-none px-4 py-3 text-xs font-medium text-white whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+                    !assetsHydrated || isGenerating || !backgroundPreviewImage
+                      ? "cursor-not-allowed bg-[hsl(0,0%,60%)]"
+                      : "cursor-pointer bg-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,20%)]"
+                  }`}
+                >
+                  Continue
+                  <img src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg" alt="Forward" className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Buttons outside grid so they always have full container width */}
-          <div className="mt-auto flex items-center justify-end gap-3 pt-6">
-            <button
-              type="button"
-              onClick={() => navigate("/create-design/step-3")}
-              className="flex cursor-pointer items-center gap-2 rounded-full border-none bg-[hsl(0,0%,95%)] px-4 py-3 text-xs font-medium text-[hsl(0,0%,10%)] whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] hover:opacity-90 active:scale-[0.99]"
-            >
-              <img src="/Halorai Dev/Icons/weui_arrow-outlined.svg" alt="Back" className="h-3.5 w-3.5 brightness-0" />
-              Go back
-            </button>
-            <button
-              type="button"
-              disabled={!assetsHydrated || isGenerating || !backgroundPreviewImage}
-              onClick={() => {
-                setBackgroundRefinementNotes(message.trim());
-                navigate("/create-design/step-4");
-              }}
-              className={`flex items-center gap-2 rounded-full border-none px-4 py-3 text-xs font-medium text-white whitespace-nowrap transition-all duration-150 ease-out hover:scale-[1.01] active:scale-[0.99] ${
-                !assetsHydrated || isGenerating || !backgroundPreviewImage
-                  ? "cursor-not-allowed bg-[hsl(0,0%,60%)]"
-                  : "cursor-pointer bg-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,20%)]"
-              }`}
-            >
-              Continue
-              <img src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg" alt="Forward" className="h-3.5 w-3.5" />
-            </button>
           </div>
         </div>
       </div>
