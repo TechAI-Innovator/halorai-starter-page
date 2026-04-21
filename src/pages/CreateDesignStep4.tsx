@@ -15,17 +15,18 @@ const CreateDesignStep4 = () => {
       : concepts.find((c) => c.id === selectedConceptId)?.label || concepts[0]?.label || "";
   const missingMinisterTitle = ministers.length > 0 && ministers.some((m) => !m.title.trim());
 
-  const detailLines = useMemo(() => {
-    const lines = [
-      eventDetails.churchName?.trim(),
-      eventDetails.eventName?.trim(),
-      eventDetails.theme?.trim(),
-      eventDetails.date?.trim(),
-      eventDetails.time?.trim(),
-      eventDetails.venue?.trim(),
-      eventDetails.otherInfo?.trim(),
-    ].filter(Boolean) as string[];
-    return lines;
+  /** Same field order as before; labels match Step 1 (CreateDesign). */
+  const detailRows = useMemo(() => {
+    const rows: { key: string; label: string; value: string }[] = [
+      { key: "churchName", label: "Ministry name", value: eventDetails.churchName?.trim() ?? "" },
+      { key: "eventName", label: "Event name", value: eventDetails.eventName?.trim() ?? "" },
+      { key: "theme", label: "Theme", value: eventDetails.theme?.trim() ?? "" },
+      { key: "date", label: "Date", value: eventDetails.date?.trim() ?? "" },
+      { key: "time", label: "Time", value: eventDetails.time?.trim() ?? "" },
+      { key: "venue", label: "Venue", value: eventDetails.venue?.trim() ?? "" },
+      { key: "otherInfo", label: "Other Info", value: eventDetails.otherInfo?.trim() ?? "" },
+    ];
+    return rows.filter((r) => r.value.length > 0);
   }, [eventDetails]);
 
   const handleRemoveLogo = (id: string) => {
@@ -74,11 +75,16 @@ const CreateDesignStep4 = () => {
                   <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
                 </button>
               </div>
-              <div className="details-scroll flex flex-col gap-1.5 text-sm text-[hsl(0,0%,45%)] pr-2">
-                {detailLines.length ? (
-                  detailLines.map((line, idx) => <span key={idx}>{line}</span>)
+              <div className="details-scroll flex flex-col gap-3 text-sm pr-2">
+                {detailRows.length ? (
+                  detailRows.map((row) => (
+                    <div key={row.key} className="flex flex-col gap-0.5">
+                      <span className="text-xs font-medium text-[hsl(0,0%,40%)]">{row.label}: </span>
+                      <span className="text-sm text-[hsl(0,0%,25%)] leading-snug">{row.value}</span>
+                    </div>
+                  ))
                 ) : (
-                  <span className="text-[hsl(0,0%,55%)]">No details yet.</span>
+                  <span className="text-sm text-[hsl(0,0%,55%)]">No details yet.</span>
                 )}
               </div>
             </div>
