@@ -61,7 +61,8 @@ const CreateDesignStep4 = () => {
             Please Confirm all details
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-[0.35fr_0.3fr_0.9fr] gap-8 md:gap-6">
+          {/* Row 1: Details + Logos */}
+          <div className="grid grid-cols-1 md:grid-cols-[1.4fr_0.6fr] gap-6 mb-6">
             {/* Details Card */}
             <div className="bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-8">
@@ -85,16 +86,25 @@ const CreateDesignStep4 = () => {
 
             {/* Logos Card */}
             <div className="bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5 flex flex-col">
-              <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-5">Logos</h3>
-              <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center gap-3 mb-10">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Logos</h3>
+                <button
+                  onClick={() => navigate("/create-design/step-2")}
+                  className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-lg px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors"
+                >
+                  <img src="/Halorai Dev/Icons/material-symbols_upload-rounded.svg" alt="Upload" className="w-4 h-4" />
+                  Upload
+                </button>
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center justify-center gap-3">
                   {logos.length ? (
                     logos.map((logo) => (
                       <div key={logo.id} className="relative">
-                        <img src={logo.previewUrl} alt={logo.file.name} className="w-10 h-10 object-cover rounded-full" />
+                        <img src={logo.previewUrl} alt={logo.file.name} className="w-14 h-14 object-cover rounded-full" />
                         <button
                           onClick={() => handleRemoveLogo(logo.id)}
-                          className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[hsl(15,100%,55%)] rounded-full flex items-center justify-center border-none cursor-pointer"
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-[hsl(15,100%,55%)] rounded-full flex items-center justify-center border-none cursor-pointer"
                           aria-label="Remove logo"
                         >
                           <img src="/Halorai Dev/Icons/cancel.svg" alt="Remove" className="w-2.5 h-2.5 brightness-0 invert" />
@@ -105,20 +115,16 @@ const CreateDesignStep4 = () => {
                     <div className="text-xs text-[hsl(0,0%,55%)]">No logos uploaded.</div>
                   )}
                 </div>
-                <button
-                  onClick={() => navigate("/create-design/step-2")}
-                  className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-lg px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors w-fit"
-                >
-                  <img src="/Halorai Dev/Icons/material-symbols_upload-rounded.svg" alt="Upload" className="w-4 h-4" />
-                  Upload
-                </button>
               </div>
             </div>
+          </div>
 
+          {/* Row 2: Ministers + Background Concept */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Ministers Card */}
             <div className="flex flex-col bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5">
-              <div className="flex items-center justify-between ">
-                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-10">Ministers</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Ministers</h3>
                 <button
                   onClick={() => navigate("/create-design/step-2")}
                   className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-lg px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors"
@@ -127,7 +133,7 @@ const CreateDesignStep4 = () => {
                   Upload
                 </button>
               </div>
-              <div className="ministers-scroll flex flex-col gap-3 md:max-h-[200px] md:overflow-y-auto md:pr-8">
+              <div className="ministers-scroll flex flex-col gap-3 md:max-h-[220px] md:overflow-y-auto md:pr-2">
                 {ministers.length ? (
                   ministers.map((minister) => (
                     <div key={minister.id} className="flex items-center gap-3">
@@ -148,7 +154,7 @@ const CreateDesignStep4 = () => {
                         placeholder={minister.placeholderTitle}
                         value={minister.title}
                         onChange={(e) => handleMinisterChange(minister.id, "title", e.target.value)}
-                        className="w-[25%] min-w-[160px] shrink-0 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white"
+                        className="w-[30%] min-w-[80px] shrink-0 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white"
                       />
                       <button
                         onClick={() => handleDeleteMinister(minister.id)}
@@ -164,37 +170,45 @@ const CreateDesignStep4 = () => {
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Background Concept */}
-          <div className="mt-8">
-            <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-3">Background Concept</h3>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <div className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-5 py-3 text-sm text-[hsl(0,0%,45%)] bg-white">
-                {conceptLabel ? <span className="block text-xs font-medium text-[hsl(0,0%,55%)] mb-1">{conceptLabel}</span> : null}
-                {selectedConceptDescription}
+            {/* Background Concept + Create Button */}
+            <div className="flex flex-col">
+              <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-3">Background Concept</h3>
+              <div className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-5 py-4 text-sm text-[hsl(0,0%,45%)] bg-white relative">
+                <div className="flex items-start justify-between">
+                  <span>{selectedConceptDescription || "No concept selected."}</span>
+                  <button
+                    onClick={() => navigate("/create-design/step-3ii")}
+                    className="w-7 h-7 flex items-center justify-center cursor-pointer bg-transparent border-none shrink-0 ml-3"
+                    aria-label="Edit concept"
+                  >
+                    <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <button
-                aria-label="Create"
-                disabled={missingMinisterTitle}
-                onClick={() => {
-                  if (missingMinisterTitle) return;
-                  navigate("/create-design/step-5");
-                }}
-                className={`border-none bg-transparent p-0 transition-all duration-150 ease-out shrink-0 ${
-                  missingMinisterTitle
-                    ? "opacity-60 cursor-not-allowed"
-                    : "cursor-pointer hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
-                }`}
-              >
-                <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-12 w-auto object-contain" />
-              </button>
+              <div className="flex justify-end mt-4">
+                <button
+                  aria-label="Create"
+                  disabled={missingMinisterTitle}
+                  onClick={() => {
+                    if (missingMinisterTitle) return;
+                    navigate("/create-design/step-5");
+                  }}
+                  className={`border-none bg-transparent p-0 transition-all duration-150 ease-out shrink-0 ${
+                    missingMinisterTitle
+                      ? "opacity-60 cursor-not-allowed"
+                      : "cursor-pointer hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
+                  }`}
+                >
+                  <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-12 w-auto object-contain" />
+                </button>
+              </div>
+              {missingMinisterTitle ? (
+                <div className="mt-2 text-xs text-[hsl(15,100%,45%)] text-right">
+                  Please add a Title/Role for each uploaded minister image before creating.
+                </div>
+              ) : null}
             </div>
-            {missingMinisterTitle ? (
-              <div className="mt-3 text-xs text-[hsl(15,100%,45%)]">
-                Please add a Title/Role for each uploaded minister image before creating.
-              </div>
-            ) : null}
           </div>
         </div>
       </div>
