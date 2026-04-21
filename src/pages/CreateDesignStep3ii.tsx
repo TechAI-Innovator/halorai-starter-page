@@ -312,9 +312,9 @@ const CreateDesignStep3ii = () => {
 
       <div className="px-4 xs:px-0">
         <div className="border border-[hsl(0,0%,80%)] rounded-2xl p-6 md:p-8">
-          <div className="grid grid-cols-1 gap-y-8 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] md:gap-x-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-y-8 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] md:gap-x-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)] max-md:items-center max-md:justify-items-center">
             {/* Left: background preview + overlay controls */}
-            <div className="flex min-w-0 w-full max-w-full flex-col">
+            <div className="flex min-w-0 w-full max-w-full flex-col max-md:items-center">
               <div className="relative mx-auto aspect-[4/5] w-full max-w-[min(100%,20rem)] rounded-2xl bg-[hsl(0,0%,88%)] ring-1 ring-[hsl(0,0%,90%)] md:mx-0 md:max-w-none">
                 <div className="absolute inset-0 overflow-hidden rounded-2xl">
                   {backgroundPreviewImage ? (
