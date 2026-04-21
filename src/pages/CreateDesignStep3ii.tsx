@@ -436,7 +436,7 @@ const CreateDesignStep3ii = () => {
             </div>
 
             {/* Right Column - Create Background Concept */}
-            <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col max-md:items-center max-md:w-full">
               <h2 className="text-lg md:text-xl font-bold text-[hsl(0,0%,10%)] mb-2">
                 Edit Background Concept
               </h2>
