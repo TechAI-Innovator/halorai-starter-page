@@ -6,6 +6,20 @@ import { useCreateDesign } from "@/contexts/CreateDesignContext";
 import { aiGenerateFlyer } from "@/lib/api";
 import { downloadFlyer } from "@/lib/downloadFlyer";
 import ArcLoader from "@/components/ArcLoader";
+import type { FlyerImage } from "@/contexts/CreateDesignContext";
+
+function flyerImageToFile(img: FlyerImage): File {
+  const binary = atob(img.base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const ext =
+    img.mimeType === "image/jpeg" || img.mimeType === "image/jpg"
+      ? "jpg"
+      : img.mimeType === "image/webp"
+        ? "webp"
+        : "png";
+  return new File([bytes], `background.${ext}`, { type: img.mimeType || "image/png" });
+}
 
 const CreateDesignStep5 = () => {
   const [message, setMessage] = useState("");
@@ -28,6 +42,8 @@ const CreateDesignStep5 = () => {
     flyerKey,
     setFlyerKey,
     backgroundRefinementNotes,
+    backgroundPreviewImage,
+    backgroundPreviewKey,
   } = useCreateDesign();
   const conceptDescription = selectedConceptDescription;
   const filenameBase = useMemo(() => {
@@ -62,10 +78,11 @@ const CreateDesignStep5 = () => {
       event: safeEvent,
       concept: conceptDescription || "",
       backgroundRefinement: backgroundRefinementNotes?.trim() || "",
+      backgroundKey: backgroundPreviewKey || "",
       logos: logoMeta,
       ministers: ministerMeta,
     });
-  }, [backgroundRefinementNotes, conceptDescription, eventDetails, logos, ministers]);
+  }, [backgroundPreviewKey, backgroundRefinementNotes, conceptDescription, eventDetails, logos, ministers]);
 
   const canGenerate = useMemo(() => {
     const requiredStep1Ok =
@@ -76,9 +93,18 @@ const CreateDesignStep5 = () => {
       !!eventDetails.theme?.trim();
 
     const step3Ok = !!conceptDescription.trim() && (selectedConceptId != null || concepts.length > 0);
-    const ministersOk = ministers.length === 0 || ministers.every((m) => !!m.title.trim());
-    return assetsHydrated && requiredStep1Ok && step3Ok && ministersOk;
-  }, [assetsHydrated, conceptDescription, concepts.length, eventDetails, ministers, selectedConceptId]);
+    const ministersOk = ministers.length === 0 || ministers.every((m) => !!m.name.trim());
+    const hasBackground = !!backgroundPreviewImage?.base64?.trim();
+    return assetsHydrated && requiredStep1Ok && step3Ok && ministersOk && hasBackground;
+  }, [
+    assetsHydrated,
+    backgroundPreviewImage,
+    conceptDescription,
+    concepts.length,
+    eventDetails,
+    ministers,
+    selectedConceptId,
+  ]);
 
   const generateFlyer = useCallback(async (opts?: { message?: string; keepExisting?: boolean; force?: boolean }) => {
     const force = !!opts?.force;
@@ -86,7 +112,9 @@ const CreateDesignStep5 = () => {
     if (!canGenerate) {
       setIsPreparing(false);
       setFlyerImage(null);
-      setError("Missing required info. Please go back to Step 1 and Step 3 to complete your details and pick a concept.");
+      setError(
+        "Missing required info. Go back to Step 1, pick a concept on Step 3, generate your background on Step 3ii, and confirm ministers on Step 4."
+      );
       return;
     }
 
@@ -102,10 +130,15 @@ const CreateDesignStep5 = () => {
     setIsPreparing(true);
 
     try {
+      if (!backgroundPreviewImage) {
+        setError("No background image. Complete Step 3ii first.");
+        return;
+      }
       const res = await aiGenerateFlyer({
         eventDetails,
         concept: conceptDescription,
         message: opts?.message,
+        backgroundImage: flyerImageToFile(backgroundPreviewImage),
         ministersMeta: ministers.map((m) => ({ name: m.name, title: m.title })),
         logos: logos.map((l) => l.file),
         ministers: ministers.map((m) => m.avatar.file),
@@ -123,7 +156,19 @@ const CreateDesignStep5 = () => {
     } finally {
       setIsPreparing(false);
     }
-  }, [canGenerate, conceptDescription, eventDetails, flyerImage, flyerKey, generationKey, logos, ministers, setFlyerImage, setFlyerKey]);
+  }, [
+    backgroundPreviewImage,
+    canGenerate,
+    conceptDescription,
+    eventDetails,
+    flyerImage,
+    flyerKey,
+    generationKey,
+    logos,
+    ministers,
+    setFlyerImage,
+    setFlyerKey,
+  ]);
 
   useEffect(() => {
     // Generate once when required inputs become available, unless already generated.
@@ -172,9 +217,9 @@ const CreateDesignStep5 = () => {
                       "Loading..."
                     ) : isPreparing ? (
                         <span>
-                          Generating
+                          Compositing
                           <br />
-                          your design...
+                          your flyer...
                         </span>
                     ) : canGenerate ? (
                       <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />

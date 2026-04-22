@@ -128,7 +128,7 @@ export async function aiGenerateImage(payload: {
 
 export type AiFlyerResponse = {
   model: string;
-  template?: { bucket: string; file: string };
+  template?: { bucket: string; file: string; title?: string };
   images: { mimeType: string; base64: string }[];
 };
 
@@ -137,11 +137,14 @@ export async function aiGenerateFlyer(payload: {
   concept?: string;
   message?: string;
   ministersMeta?: { name: string; title: string }[];
+  /** User-selected 9:16 background from Step 3ii (required for flyer composition). */
+  backgroundImage: File;
   logos?: File[];
   ministers?: File[];
 }): Promise<AiFlyerResponse> {
   const fd = new FormData();
   fd.append("eventDetails", JSON.stringify(payload.eventDetails ?? {}));
+  fd.append("backgroundImage", payload.backgroundImage);
   if (payload.concept) fd.append("concept", payload.concept);
   if (payload.message) fd.append("message", payload.message);
   if (payload.ministersMeta?.length) fd.append("ministersMeta", JSON.stringify(payload.ministersMeta));

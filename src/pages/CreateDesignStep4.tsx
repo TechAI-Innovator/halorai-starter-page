@@ -3,17 +3,12 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
 import StepperProgress from "@/components/StepperProgress";
-import { CUSTOM_CONCEPT_ID, useCreateDesign } from "@/contexts/CreateDesignContext";
+import { useCreateDesign } from "@/contexts/CreateDesignContext";
 
 const CreateDesignStep4 = () => {
   const navigate = useNavigate();
-  const { eventDetails, logos, setLogos, ministers, setMinisters, concepts, selectedConceptId, selectedConceptDescription } =
-    useCreateDesign();
-  const conceptLabel =
-    selectedConceptId === CUSTOM_CONCEPT_ID
-      ? "Custom"
-      : concepts.find((c) => c.id === selectedConceptId)?.label || concepts[0]?.label || "";
-  const missingMinisterTitle = ministers.length > 0 && ministers.some((m) => !m.title.trim());
+  const { eventDetails, logos, setLogos, ministers, setMinisters, backgroundPreviewImage } = useCreateDesign();
+  const missingMinisterName = ministers.length > 0 && ministers.some((m) => !m.name.trim());
 
   /** Same field order as before; labels match Step 1 (CreateDesign). */
   const detailRows = useMemo(() => {
@@ -67,7 +62,7 @@ const CreateDesignStep4 = () => {
             {/* Details Card */}
             <div className="bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Details</h3>
+                <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)]">Details</h3>
                 <button
                   onClick={() => navigate("/create-design")}
                   className="w-7 h-7 flex items-center justify-center cursor-pointer bg-transparent border-none"
@@ -79,9 +74,9 @@ const CreateDesignStep4 = () => {
               <div className="details-scroll flex flex-col gap-3 text-sm pr-2">
                 {detailRows.length ? (
                   detailRows.map((row) => (
-                    <div key={row.key} className="flex flex-col gap-0.5">
-                      <span className="text-xs font-medium text-[hsl(0,0%,40%)]">{row.label}: </span>
-                      <span className="text-sm text-[hsl(0,0%,25%)] leading-snug">{row.value}</span>
+                    <div key={row.key} className="min-w-0 text-sm text-[hsl(0,0%,25%)] leading-snug">
+                      <span className="text-sm text-[hsl(0,0%,40%)]">{row.label}: </span>
+                      <span className="text-sm text-[hsl(0,0%,40%)] leading-snug">{row.value}</span>
                     </div>
                   ))
                 ) : (
@@ -93,7 +88,7 @@ const CreateDesignStep4 = () => {
             {/* Logos Card */}
             <div className="bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Logos</h3>
+                <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)]">Upload Logo</h3>
                 <button
                   onClick={() => navigate("/create-design/step-2")}
                   className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-lg px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors"
@@ -125,49 +120,49 @@ const CreateDesignStep4 = () => {
             </div>
           </div>
 
-          {/* Row 2: Ministers + Background Concept */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Row 2: Ministers + Background Concept (equal column height) */}
+          <div className="grid min-h-0 grid-cols-1 gap-6 md:grid-cols-2 md:items-stretch">
             {/* Ministers Card */}
-            <div className="flex flex-col bg-[hsl(0,0%,97%)] border border-[hsl(0,0%,95%)] rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-[hsl(0,0%,40%)]">Ministers</h3>
+            <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[hsl(0,0%,95%)] bg-[hsl(0,0%,97%)] p-5">
+              <div className="mb-4 flex shrink-0 items-center justify-between">
+                <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)]">Add Ministers Name</h3>
                 <button
                   onClick={() => navigate("/create-design/step-2")}
-                  className="flex items-center gap-2 border border-[hsl(0,0%,85%)] rounded-lg px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] bg-white cursor-pointer hover:border-[hsl(0,0%,60%)] transition-colors"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-[hsl(0,0%,85%)] bg-white px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] transition-colors hover:border-[hsl(0,0%,60%)]"
                 >
                   <img src="/Halorai Dev/Icons/material-symbols_upload-rounded.svg" alt="Upload" className="w-4 h-4" />
                   Upload
                 </button>
               </div>
-              <div className="ministers-scroll flex flex-col gap-3 md:max-h-[220px] md:overflow-y-auto md:pr-2">
+              <div className="ministers-scroll flex min-h-[220px] flex-1 flex-col gap-3 overflow-y-auto pr-2">
                 {ministers.length ? (
                   ministers.map((minister) => (
                     <div key={minister.id} className="flex items-center gap-3">
                       <img
                         src={minister.avatar.previewUrl}
                         alt={minister.avatar.file.name}
-                        className="w-8 h-8 rounded-full object-cover shrink-0"
+                        className="h-8 w-8 shrink-0 rounded-full object-cover"
                       />
                       <input
                         type="text"
                         placeholder={minister.placeholderName}
                         value={minister.name}
                         onChange={(e) => handleMinisterChange(minister.id, "name", e.target.value)}
-                        className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white min-w-0"
+                        className="min-w-0 flex-1 rounded-xl border border-[hsl(0,0%,85%)] bg-white px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] outline-none transition-colors placeholder:text-[hsl(0,0%,70%)] focus:border-[hsl(330,100%,80%)]"
                       />
                       <input
                         type="text"
                         placeholder={minister.placeholderTitle}
                         value={minister.title}
                         onChange={(e) => handleMinisterChange(minister.id, "title", e.target.value)}
-                        className="w-[30%] min-w-[80px] shrink-0 border border-[hsl(0,0%,85%)] rounded-xl px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] placeholder:text-[hsl(0,0%,70%)] outline-none focus:border-[hsl(330,100%,80%)] transition-colors bg-white"
+                        className="w-[30%] min-w-[80px] shrink-0 rounded-xl border border-[hsl(0,0%,85%)] bg-white px-4 py-2.5 text-xs text-[hsl(0,0%,10%)] outline-none transition-colors placeholder:text-[hsl(0,0%,70%)] focus:border-[hsl(330,100%,80%)]"
                       />
                       <button
                         onClick={() => handleDeleteMinister(minister.id)}
-                        className="w-8 h-8 shrink-0 bg-[hsl(15,100%,55%)] rounded-xl flex items-center justify-center cursor-pointer hover:bg-[hsl(15,100%,45%)] transition-colors border-none"
+                        className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none bg-[hsl(15,100%,55%)] transition-colors hover:bg-[hsl(15,100%,45%)]"
                         aria-label="Delete minister"
                       >
-                        <img src="/Halorai Dev/Icons/weui_delete-on-filled.svg" alt="Delete" className="w-3 h-3" />
+                        <img src="/Halorai Dev/Icons/weui_delete-on-filled.svg" alt="Delete" className="h-3 w-3" />
                       </button>
                     </div>
                   ))
@@ -177,43 +172,55 @@ const CreateDesignStep4 = () => {
               </div>
             </div>
 
-            {/* Background Concept + Create Button */}
-            <div className="flex flex-col">
-              <h3 className="text-sm font-medium text-[hsl(0,0%,40%)] mb-3">Background Concept</h3>
-              <div className="flex-1 border border-[hsl(0,0%,85%)] rounded-xl px-5 py-4 text-sm text-[hsl(0,0%,45%)] bg-white relative">
-                <div className="flex items-start justify-between">
-                  <span>{selectedConceptDescription || "No concept selected."}</span>
-                  <button
-                    onClick={() => navigate("/create-design/step-3ii")}
-                    className="w-7 h-7 flex items-center justify-center cursor-pointer bg-transparent border-none shrink-0 ml-3"
-                    aria-label="Edit concept"
-                  >
-                    <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
-                  </button>
-                </div>
+            {/* Background preview (image from Step 3ii) */}
+            <div className="flex h-full min-h-0 flex-col">
+              <h3 className="mb-3 shrink-0 text-sm font-semibold text-[hsl(0,0%,10%)]">Background Concept</h3>
+              <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-xl border border-[hsl(0,0%,85%)] bg-[hsl(0,0%,92%)] ring-1 ring-[hsl(0,0%,90%)]">
+                {backgroundPreviewImage ? (
+                  <img
+                    src={`data:${backgroundPreviewImage.mimeType};base64,${backgroundPreviewImage.base64}`}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                    <p className="text-xs text-[hsl(0,0%,45%)]">No background image yet.</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/create-design/step-3ii")}
+                      className="cursor-pointer rounded-full border border-[hsl(0,0%,85%)] bg-white px-3 py-1.5 text-xs font-medium text-[hsl(0,0%,10%)] hover:border-[hsl(0,0%,60%)]"
+                    >
+                      Go to background step
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-end mt-4">
-                <button
-                  aria-label="Create"
-                  disabled={missingMinisterTitle}
-                  onClick={() => {
-                    if (missingMinisterTitle) return;
-                    navigate("/create-design/step-5");
-                  }}
-                  className={`border-none bg-transparent p-0 transition-all duration-150 ease-out shrink-0 ${
-                    missingMinisterTitle
-                      ? "opacity-60 cursor-not-allowed"
-                      : "cursor-pointer hover:opacity-90 hover:scale-[1.01] active:scale-[0.99]"
-                  }`}
-                >
-                  <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-12 w-auto object-contain" />
-                </button>
-              </div>
-              {missingMinisterTitle ? (
-                <div className="mt-2 text-xs text-[hsl(15,100%,45%)] text-right">
-                  Please add a Title/Role for each uploaded minister image before creating.
-                </div>
-              ) : null}
+            </div>
+          </div>
+
+          {/* Row 3: Create */}
+          <div className="mt-6 flex flex-col items-end gap-2">
+            {missingMinisterName ? (
+              <p className="max-w-full text-right text-xs text-[hsl(15,100%,45%)]">
+                Please add a Name for each uploaded minister image before creating.
+              </p>
+            ) : null}
+            <div className="flex w-full justify-end">
+              <button
+                aria-label="Create"
+                disabled={missingMinisterName}
+                onClick={() => {
+                  if (missingMinisterName) return;
+                  navigate("/create-design/step-5");
+                }}
+                className={`shrink-0 border-none bg-transparent p-0 transition-all duration-150 ease-out ${
+                  missingMinisterName
+                    ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer hover:scale-[1.01] hover:opacity-90 active:scale-[0.99]"
+                }`}
+              >
+                <img src="/Halorai Dev/Icons/Create button.png" alt="Create" className="h-12 w-auto object-contain" />
+              </button>
             </div>
           </div>
         </div>
