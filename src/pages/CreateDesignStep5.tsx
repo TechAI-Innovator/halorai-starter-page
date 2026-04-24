@@ -234,7 +234,7 @@ const CreateDesignStep5 = () => {
             </div>
 
             {/* Middle Column — flyer preview: scales with screen size */}
-            <div className="flex min-h-0 items-center justify-center px-2 order-2 md:order-none">
+            <div className="flex min-h-0 items-center justify-center px-2">
               <div className="inline-flex max-w-full items-center justify-center overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)]">
                 {flyerImage ? (
                   <img
