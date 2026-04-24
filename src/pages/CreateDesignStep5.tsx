@@ -234,17 +234,17 @@ const CreateDesignStep5 = () => {
             </div>
 
             {/* Middle Column — flyer preview: scales with screen size */}
-            <div className="flex min-h-0 items-center justify-center px-2 order-first md:order-none">
-              <div className="flex w-full max-w-[280px] items-center justify-center overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[480px]">
+            <div className="flex min-h-0 items-center justify-center px-2 order-2 md:order-none">
+              <div className="inline-flex max-w-full items-center justify-center overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)]">
                 {flyerImage ? (
                   <img
                     src={`data:${flyerImage.mimeType};base64,${flyerImage.base64}`}
                     alt="Design Preview"
-                    className="h-auto w-full max-h-[min(60vh,520px)] object-contain object-center md:max-h-[min(56vh,480px)]"
+                    className="block max-w-full w-auto h-auto max-h-[min(75vh,640px)] object-contain"
                   />
                 ) : (
                   <div
-                    className="aspect-[4/5] w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] bg-transparent"
+                    className="aspect-[4/5] w-full min-w-[240px] sm:min-w-[280px] md:min-w-[320px] lg:min-w-[380px] xl:min-w-[440px] bg-transparent"
                     aria-label="Design preview loading"
                   />
                 )}
