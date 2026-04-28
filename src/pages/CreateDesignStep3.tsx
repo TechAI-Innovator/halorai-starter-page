@@ -259,8 +259,8 @@ const CreateDesignStep3 = () => {
 
               <div className="mt-0 flex w-full min-w-0 items-start justify-start">
                 {showIntroLayout ? (
-                  <div className="ml-0 w-full min-w-0 max-w-full sm:max-w-[min(100%,260px)] md:ml-4 md:max-w-[min(100%,300px)] lg:max-w-[min(100%,340px)]">
-                    <div className="grid w-full grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 md:grid-cols-4 md:gap-2.5">
+                  <div className="ml-0 w-full min-w-0 max-w-full sm:max-w-[min(100%,300px)] md:ml-4 md:max-w-[min(100%,320px)] lg:max-w-[min(100%,360px)]">
+                    <div className="grid w-full grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-1.5 md:grid-cols-4 md:gap-2">
                       {BASE_COLOUR_IMAGES.map((item) => (
                         <div
                           key={item.src}
