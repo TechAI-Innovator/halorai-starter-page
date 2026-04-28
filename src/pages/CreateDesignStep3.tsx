@@ -7,8 +7,24 @@ import { CUSTOM_CONCEPT_ID, useCreateDesign } from "@/contexts/CreateDesignConte
 import { aiGenerateText } from "@/lib/api";
 import ArcLoader from "@/components/ArcLoader";
 
-/** Fixed slot for column 1: same footprint for intro copy and ArcLoader (no extra panel — matches previous Step 3). */
+/** Fixed slot for column 1: ArcLoader when concepts exist / loading (unchanged layout). */
 const LEFT_CONTENT_SLOT = "ml-2 md:ml-4 w-[220px] min-h-[220px] shrink-0 flex flex-col";
+
+/** Mood board in left column — same responsive card pattern as `HaloRAI` community grid. */
+const BASE_COLOUR_IMAGES: { src: string; alt: string }[] = [
+  { src: "/Halorai Dev/Base-colours/Base-colour_01.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_02.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_03.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_04.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_05.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_06.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_07.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_08.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_09.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_010.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_011.jpg", alt: "Colour sample" },
+  { src: "/Halorai Dev/Base-colours/Base-colour_012.jpg", alt: "Colour sample" },
+];
 
 /** AI concepts: at most two short lines / brief phrases (enforced after parse for consistency). */
 function clampConceptDescription(raw: string): string {
@@ -229,51 +245,60 @@ const CreateDesignStep3 = () => {
         <div className="border border-[hsl(0,0%,80%)] rounded-2xl p-6 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-[0.54fr_1fr] gap-y-8 md:gap-x-6">
             {/* Left Column */}
-            <div className="flex flex-col">
-              <h2 className="text-lg md:text-xl font-semibold text-[hsl(0,0%,10%)] mb-1">
+            <div className="flex min-w-0 flex-col">
+              <h2 className="mb-1 text-lg font-semibold text-[hsl(0,0%,10%)] md:mb-5 md:text-xl">
                 Background Concept
               </h2>
-              <p className="text-sm text-[hsl(0,0%,55%)] mb-8 max-w-[280px]">
+              <p className="text-sm text-[hsl(0,0%,55%)] mb-12 max-w-[280px]">
                 Please Pick a concept from the suggestions or enter your preferred concept
               </p>
 
-              <div className="mt-4 flex items-start justify-start">
-                <div className={LEFT_CONTENT_SLOT}>
-                  {showIntroLayout ? (
-                    <div className="w-full text-left text-xs leading-relaxed text-[hsl(0,0%,40%)]">
-                      <p className="mb-2 font-medium text-[hsl(0,0%,22%)]">What is a concept?</p>
-                      <p className="mb-2">
-                        A <span className="font-semibold text-[hsl(0,0%,18%)]">concept</span> is the visual idea for your flyer
-                        background—mood, scene, and symbolism that match your event theme. It is not the final artwork yet; it guides
-                        the next step where a background image is created.
-                      </p>
-                      <p>
-                        You can <span className="font-semibold text-[hsl(0,0%,18%)]">write your own</span> in Custom, or use{" "}
-                        <span className="font-semibold text-[hsl(0,0%,18%)]">Suggest concept</span> to have three options generated
-                        from your event details (only when you choose—no automatic request).
-                      </p>
+              <h2 className="mb-4 text-lg font-semibold text-[hsl(0,0%,10%)] md:mb-5 md:text-xl">
+                Select Base Colour
+              </h2>
+
+              <div className="mt-0 flex w-full min-w-0 items-start justify-start">
+                {showIntroLayout ? (
+                  <div className="ml-0 w-full min-w-0 max-w-full sm:max-w-[min(100%,260px)] md:ml-4 md:max-w-[min(100%,300px)] lg:max-w-[min(100%,340px)]">
+                    <div className="grid w-full grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 md:grid-cols-4 md:gap-2.5">
+                      {BASE_COLOUR_IMAGES.map((item) => (
+                        <div
+                          key={item.src}
+                          className="aspect-square overflow-hidden rounded-lg shadow-[0_1px_8px_rgba(0,0,0,0.08)] transition-transform xs:rounded-xl hover:-translate-y-0.5"
+                        >
+                          <img
+                            src={item.src}
+                            alt={item.alt}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ) : (
+                  </div>
+                ) : (
+                  <div className={LEFT_CONTENT_SLOT}>
                     <div className="flex flex-1 flex-col items-center justify-start pt-0">
                       <ArcLoader
-                      size={180}
-                      label={
-                        isAnalyzing ? (
-                          <span>
-                            Analyzing
-                            <br />
-                            your theme...
-                          </span>
-                        ) : (
-                          <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />
-                        )
-                      }
-                      spinning={isAnalyzing}
-                      spinDurationMs={2600}
-                    />
+                        size={180}
+                        label={
+                          isAnalyzing ? (
+                            <span>
+                              Analyzing
+                              <br />
+                              your theme...
+                            </span>
+                          ) : (
+                            <img src="/Halorai Dev/Images/checkmark.svg" alt="Done" className="w-14 h-14" />
+                          )
+                        }
+                        spinning={isAnalyzing}
+                        spinDurationMs={2600}
+                      />
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
 
