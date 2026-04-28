@@ -20,6 +20,9 @@ export type FlyerConcept = {
 /** Reserved id for user-written background concept (not from AI list). */
 export const CUSTOM_CONCEPT_ID = 4;
 
+/** Step 3 base palette: `null` not chosen yet; `"skip"` = AI chooses freely; otherwise image path under `/Halorai Dev/Base-colours/`. */
+export type BaseColourChoice = null | "skip" | string;
+
 export type LocalFileItem = {
   id: string;
   file: File;
@@ -82,6 +85,9 @@ type CreateDesignState = {
   /** Optional notes from Step 3ii textarea when continuing (refinements). */
   backgroundRefinementNotes: string;
   setBackgroundRefinementNotes: (next: string) => void;
+
+  baseColourChoice: BaseColourChoice;
+  setBaseColourChoice: React.Dispatch<React.SetStateAction<BaseColourChoice>>;
 };
 
 const defaultEventDetails: EventDetails = {
@@ -108,6 +114,7 @@ const LS_FLYER_IMAGE_META = "createDesign_flyerImageMeta_v1";
 const LS_BACKGROUND_PREVIEW_META = "createDesign_backgroundPreviewMeta_v1";
 const LS_BACKGROUND_PREVIEW_KEY = "createDesign_backgroundPreviewKey_v1";
 const LS_BACKGROUND_REFINEMENT = "createDesign_backgroundRefinement_v1";
+const LS_BASE_COLOUR_CHOICE = "createDesign_baseColourChoice_v1";
 
 const IDB_FLYER_IMAGE = "flyerImage_v1";
 const IDB_BACKGROUND_PREVIEW = "backgroundPreview_v1";
@@ -129,6 +136,18 @@ function _safeJsonParse<T>(raw: string | null): T | null {
   } catch {
     return null;
   }
+}
+
+function parseBaseColourChoice(raw: string | null): BaseColourChoice {
+  if (!raw?.trim()) return null;
+  try {
+    const v = JSON.parse(raw) as unknown;
+    if (v === "skip") return "skip";
+    if (typeof v === "string" && v.startsWith("/Halorai Dev/Base-colours/")) return v;
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 export function CreateDesignProvider({ children }: { children: React.ReactNode }) {
@@ -154,6 +173,9 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
   const [backgroundPreviewKey, setBackgroundPreviewKey] = useState<string>(() => localStorage.getItem(LS_BACKGROUND_PREVIEW_KEY) || "");
   const [backgroundRefinementNotes, setBackgroundRefinementNotes] = useState<string>(
     () => localStorage.getItem(LS_BACKGROUND_REFINEMENT) || ""
+  );
+  const [baseColourChoice, setBaseColourChoice] = useState<BaseColourChoice>(() =>
+    parseBaseColourChoice(localStorage.getItem(LS_BASE_COLOUR_CHOICE))
   );
 
   const prevLogoIdsRef = useRef<Set<string>>(new Set());
@@ -264,7 +286,13 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
     setBackgroundRefinementNotes("");
     setFlyerImage(null);
     setFlyerKey("");
+    setBaseColourChoice(null);
   }, [eventDetails.theme]);
+
+  useEffect(() => {
+    if (baseColourChoice == null) localStorage.removeItem(LS_BASE_COLOUR_CHOICE);
+    else localStorage.setItem(LS_BASE_COLOUR_CHOICE, JSON.stringify(baseColourChoice));
+  }, [baseColourChoice]);
 
   useEffect(() => {
     localStorage.setItem(LS_CONCEPTS, JSON.stringify(concepts));
@@ -421,12 +449,15 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
       setBackgroundPreviewKey,
       backgroundRefinementNotes,
       setBackgroundRefinementNotes,
+      baseColourChoice,
+      setBaseColourChoice,
     }),
     [
       assetsHydrated,
       backgroundPreviewImage,
       backgroundPreviewKey,
       backgroundRefinementNotes,
+      baseColourChoice,
       concepts,
       conceptsKey,
       customConceptText,

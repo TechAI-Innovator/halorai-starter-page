@@ -7,6 +7,7 @@ import re
 from flask import Blueprint, jsonify, request, g
 
 from .ai_client import generate_flyer_image_base64, generate_images_base64, generate_text, recreate_image_base64
+from .blend_engine import blend_concept_over_base
 from .templates import MAX_MINISTERS, pick_template_image
 
 
@@ -199,6 +200,54 @@ def ai_image():
     )
 
   return jsonify({"model": model, "images": images})
+
+
+@ai_bp.post("/api/image/blend")
+def image_blend():
+  """
+  Blend AI concept image over a base swatch using real blend math (Pillow + NumPy).
+  JSON: baseImage { base64 }, conceptImage { base64 }, mode, opacity (0..1).
+  """
+  payload = request.get_json(silent=True) or {}
+  base_payload = payload.get("baseImage") or {}
+  concept_payload = payload.get("conceptImage") or {}
+  base_b64 = (base_payload.get("base64") or "").strip()
+  concept_b64 = (concept_payload.get("base64") or "").strip()
+  mode = (payload.get("mode") or "soft_light").strip().lower()
+  opacity_raw = payload.get("opacity")
+
+  if not base_b64 or not concept_b64:
+    return _json_error("baseImage.base64 and conceptImage.base64 are required", 400)
+
+  try:
+    opacity_f = float(opacity_raw)
+  except (TypeError, ValueError):
+    return _json_error("opacity must be a number between 0 and 1", 400)
+
+  try:
+    mime, out_b64 = blend_concept_over_base(
+      base_image_b64=base_b64,
+      concept_image_b64=concept_b64,
+      mode=mode,
+      opacity=opacity_f,
+    )
+  except ValueError as e:
+    return _json_error(str(e), 400)
+  except Exception as e:
+    ai_logger.exception(
+      json.dumps(
+        {
+          "type": "blend_error",
+          "endpoint": "/api/image/blend",
+          "requestId": getattr(g, "request_id", None),
+          "error": str(e),
+        },
+        ensure_ascii=False,
+      )
+    )
+    return _json_error("Blend failed", 500)
+
+  return jsonify({"mimeType": mime, "base64": out_b64})
 
 
 @ai_bp.post("/api/ai/image/recreate")
