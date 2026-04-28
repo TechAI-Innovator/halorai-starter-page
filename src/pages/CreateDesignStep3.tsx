@@ -365,17 +365,17 @@ const CreateDesignStep3 = () => {
                         key={concept.id}
                         type="button"
                         onClick={() => setSelectedConceptId(concept.id)}
-                        className={`flex w-full max-w-full flex-col text-left border rounded-2xl p-5 cursor-pointer transition-all duration-150 ease-out md:max-w-[440px] ${
+                        className={`group flex w-full max-w-full flex-col text-left border rounded-2xl p-5 cursor-pointer transition-all duration-200 ease-out md:max-w-[440px] ${
                           selected === concept.id
-                            ? "border-[hsl(330,100%,85%)] shadow-[0_0_0_1px_hsl(330,100%,85%)] bg-[hsl(0,0%,100%)]"
-                            : "bg-[hsl(0,0%,95%)] border-[hsl(0,0%,85%)] hover:border-[hsl(0,0%,70%)]"
+                            ? "border-[hsl(330,100%,85%)] shadow-[0_0_0_1px_hsl(330,100%,85%)] bg-[hsl(0,0%,100%)] hover:border-[hsl(330,100%,78%)] hover:shadow-[0_12px_36px_-16px_rgba(0,0,0,0.09)] hover:-translate-y-px active:translate-y-0 active:shadow-[0_0_0_1px_hsl(330,100%,85%)]"
+                            : "bg-[hsl(0,0%,95%)] border-[hsl(0,0%,85%)] hover:border-[hsl(0,0%,68%)] hover:bg-[hsl(0,0%,97%)] hover:shadow-[0_12px_40px_-16px_rgba(0,0,0,0.1)] hover:-translate-y-px active:translate-y-0 active:shadow-[0_4px_16px_-12px_rgba(0,0,0,0.06)]"
                         }`}
                       >
                         <span
-                          className={`mb-4 inline-block w-fit max-w-[min(100%,240px)] shrink-0 self-start rounded-full px-3 py-1.5 text-sm font-medium ${
+                          className={`mb-4 inline-block w-fit max-w-[min(100%,240px)] shrink-0 self-start rounded-full px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-transparent transition-[box-shadow,ring-color] duration-200 group-hover:shadow-md ${
                             selected === concept.id
-                              ? "bg-[hsl(330,100%,93%)] text-[hsl(0,0%,10%)]"
-                              : "bg-white text-[hsl(0,0%,10%)]"
+                              ? "bg-[hsl(330,100%,93%)] text-[hsl(0,0%,10%)] group-hover:ring-[hsl(330,100%,82%)]"
+                              : "bg-white text-[hsl(0,0%,10%)] group-hover:ring-[hsl(0,0%,88%)]"
                           }`}
                         >
                           {concept.label}
