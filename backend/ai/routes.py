@@ -531,7 +531,10 @@ def ai_flyer():
     "",
     "1. Typography and text blocks",
     "- Use reference #2 to decide positions, hierarchy, and font style for titles, subtitles, date, time, venue, etc.",
-    "- Render the USER CONTENT text exactly as written (no paraphrasing, no spelling changes).",
+    "- RENDERING HIERARCHY (STRICT): The event THEME must be the dominant headline on the flyer — largest and/or heaviest title-class treatment, strongest contrast among primary text.",
+    "- The EVENT NAME must read as clearly secondary: smaller point size, lighter weight, or less visual dominance than the theme. Never make the event name larger, bolder, or more prominent than the theme.",
+    "- Date, time, and venue must remain legible but must not compete with the theme for attention.",
+    "- Spell every USER CONTENT string exactly as given (no paraphrasing, no spelling changes). You may change ONLY relative size, weight, and color to achieve the hierarchy above — never alter the words themselves.",
     "- Text must read clearly on top of the user background (contrast, subtle backing if needed).",
     "",
     "2. Minister photos",
@@ -544,7 +547,12 @@ def ai_flyer():
     *(
       [
         f"- Logos are reference images #{3} through #{2 + n_logos} (after background #1 and template #2).",
-        "- Place each logo where the template implies a brand mark. Keep crisp edges and sensible scale.",
+        "- Place each logo only where the template implies a brand mark, at sensible scale, with crisp edges.",
+        "LOGO FILES FROM THE USER ARE FINAL — DO NOT EDIT THE ARTWORK:",
+        "- Do not redraw, re-vectorize, simplify, stylize, recolor, add outlines, glows, shadows inside the mark, or replace the file with a newly invented version.",
+        "- Do not crop away meaningful parts of the logo or change any letter, symbol, or embedded text inside the uploaded logo pixels.",
+        "- Allowed: position, uniform scale, and at most a small rotation to align with the template slot — nothing that alters the artwork itself.",
+        "- If a logo already shows the ministry/church/organization name inside the graphic, that satisfies the organization identity on the flyer: do NOT add a separate large headline that repeats the same ministry name (avoid redundant duplicate naming).",
       ]
       if n_logos > 0
       else ["- No logo reference images were uploaded."]
@@ -562,6 +570,8 @@ def ai_flyer():
     "- Do NOT add text that is not from USER CONTENT or minister labels below.",
     "- Do NOT leave template sample text or placeholder faces visible.",
     "- Do NOT add watermarks.",
+    "- Do NOT modify, re-draw, or re-type any pixels inside uploaded logo images (see LOGO FILES section).",
+    "- Do NOT let the event name outrank the theme in typographic prominence — theme stays primary.",
     "",
     "----------------------------------",
     "",
@@ -569,6 +579,7 @@ def ai_flyer():
     "- Background still matches reference #1’s scene (not swapped for template art).",
     "- All USER CONTENT text is present and spelled exactly as given.",
     "- Minister and logo references used in the correct slots.",
+    "- Theme reads visually stronger than the event name; logos match uploaded pixels (unedited).",
     "",
     "If any rule fails, regenerate correctly.",
     "",

@@ -158,6 +158,8 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
 
   const prevLogoIdsRef = useRef<Set<string>>(new Set());
   const prevMinisterAvatarIdsRef = useRef<Set<string>>(new Set());
+  /** After first sync, any Step 1 theme edit clears Step 3+ downstream so the flow matches a fresh session. */
+  const prevThemeForConceptsRef = useRef<string | null>(null);
 
   const blobToBase64 = async (blob: Blob): Promise<string> => {
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -243,6 +245,26 @@ export function CreateDesignProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     localStorage.setItem(LS_EVENT_DETAILS, JSON.stringify(eventDetails));
   }, [eventDetails]);
+
+  useEffect(() => {
+    const theme = (eventDetails.theme || "").trim();
+    if (prevThemeForConceptsRef.current === null) {
+      prevThemeForConceptsRef.current = theme;
+      return;
+    }
+    if (prevThemeForConceptsRef.current === theme) return;
+    prevThemeForConceptsRef.current = theme;
+
+    setConcepts([]);
+    setConceptsKey("");
+    setSelectedConceptId(null);
+    setCustomConceptText("");
+    setBackgroundPreviewImage(null);
+    setBackgroundPreviewKey("");
+    setBackgroundRefinementNotes("");
+    setFlyerImage(null);
+    setFlyerKey("");
+  }, [eventDetails.theme]);
 
   useEffect(() => {
     localStorage.setItem(LS_CONCEPTS, JSON.stringify(concepts));

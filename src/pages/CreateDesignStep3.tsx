@@ -10,6 +10,24 @@ import ArcLoader from "@/components/ArcLoader";
 /** Fixed slot for column 1: same footprint for intro copy and ArcLoader (no extra panel — matches previous Step 3). */
 const LEFT_CONTENT_SLOT = "ml-2 md:ml-4 w-[220px] min-h-[220px] shrink-0 flex flex-col";
 
+/** AI concepts: at most two short lines / brief phrases (enforced after parse for consistency). */
+function clampConceptDescription(raw: string): string {
+  const t = raw.trim();
+  if (!t) return "";
+  const lines = t
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 2);
+  const joined = lines.join(" ");
+  const maxLen = 220;
+  if (joined.length <= maxLen) return joined;
+  const cut = joined.slice(0, maxLen).trim();
+  const lastSpace = cut.lastIndexOf(" ");
+  const wordSafe = lastSpace > 48 ? cut.slice(0, lastSpace) : cut;
+  return `${wordSafe}…`;
+}
+
 const CreateDesignStep3 = () => {
   const navigate = useNavigate();
   const {
@@ -87,19 +105,18 @@ const CreateDesignStep3 = () => {
       setSelectedConceptId(null);
 
       const prompt = [
-        "Generate 3 powerful visual concepts based on the provided church event theme.",
-        "Goal: translate the theme into strong, symbolic imagery for a flyer background idea.",
+        "Generate exactly 3 visual background concepts for a church event flyer.",
+        "The THEME is the primary creative anchor. The event name is optional background context only — do not let long titles drive the imagery.",
         `Theme: ${JSON.stringify(theme)}`,
-        eventName ? `Event name (optional context): ${JSON.stringify(eventName)}` : "",
+        eventName ? `Event name (light context only): ${JSON.stringify(eventName)}` : "",
         "",
         "Instructions (follow strictly):",
-        "- Each concept must represent the theme using a clear visual metaphor (a real scene).",
-        "- Focus on emotionally strong and visually striking scenes.",
-        "- Avoid generic ideas; each concept must feel unique and meaningful.",
-        "- Keep descriptions short and vivid (1–2 lines each).",
-        "- Do NOT mention design elements like text, layout, or typography.",
-        "- Focus only on the main visual scene or subject.",
-        "- Make it cinematic and dramatic (not ordinary or everyday scenes).",
+        "- Each concept must express the THEME as one clear visual metaphor (a concrete scene or setting).",
+        "- Each `description` must be extremely concise: at most TWO lines in total, each line only a short phrase (no paragraphs, no numbered lists inside the string).",
+        "- Hard cap: each description under ~220 characters including spaces; if you would exceed that, stop earlier.",
+        "- Each `label` must be a very short title (a few words, under ~40 characters).",
+        "- The three concepts must be clearly different from each other; avoid generic stock ideas.",
+        "- Do NOT mention text, layout, typography, logos, or UI — only the visual scene.",
         "- Use simple, clear English.",
         "",
         "Output (STRICT): Return ONLY valid JSON. No markdown. No extra keys.",
@@ -133,8 +150,10 @@ const CreateDesignStep3 = () => {
                 .slice(0, 3)
                 .map((c, idx: number) => ({
                   id: idx + 1,
-                  label: String((c.label as string | undefined) || `Concept ${idx + 1}`),
-                  description: String((c.description as string | undefined) || (c.text as string | undefined) || "").trim(),
+                  label: String((c.label as string | undefined) || `Concept ${idx + 1}`).trim().slice(0, 48),
+                  description: clampConceptDescription(
+                    String((c.description as string | undefined) || (c.text as string | undefined) || "")
+                  ),
                 }))
                 .filter((c) => c.description)
             : txt
@@ -150,9 +169,9 @@ const CreateDesignStep3 = () => {
                 .filter((c) => c.description);
 
         const fallback = [
-          { id: 1, label: "Concept 1", description: `A clean background with a warm glow and simple light rays to match "${theme}".` },
-          { id: 2, label: "Concept 2", description: `A calm sky with soft clouds and gentle light, matching "${theme}".` },
-          { id: 3, label: "Concept 3", description: `A bold abstract background with smooth shapes and a strong light focus for "${theme}".` },
+          { id: 1, label: "Concept 1", description: clampConceptDescription(`Warm glow and soft light rays echoing "${theme}".`) },
+          { id: 2, label: "Concept 2", description: clampConceptDescription(`Open sky, gentle clouds, quiet light for "${theme}".`) },
+          { id: 3, label: "Concept 3", description: clampConceptDescription(`Bold abstract shapes and a strong focal light for "${theme}".`) },
         ];
 
         const hasAny = next.some((c) => c.description && c.description.trim().length > 0);
@@ -165,7 +184,7 @@ const CreateDesignStep3 = () => {
           filled.push({
             id: filled.length + 1,
             label: `Concept ${filled.length + 1}`,
-            description: "A premium, modern abstract background that matches the theme mood.",
+            description: clampConceptDescription("A premium, modern abstract background that matches the theme mood."),
           });
         }
 
@@ -293,13 +312,13 @@ const CreateDesignStep3 = () => {
                       type="button"
                       disabled={!theme}
                       onClick={() => void generateConcepts()}
-                      className={`flex w-full max-w-full flex-col text-left border rounded-2xl p-5 transition-all duration-150 ease-out md:max-w-[440px] ${
+                      className={`group flex w-full max-w-full flex-col text-left border rounded-2xl p-5 transition-all duration-200 ease-out md:max-w-[440px] ${
                         !theme
                           ? "cursor-not-allowed border-[hsl(0,0%,85%)] bg-[hsl(0,0%,92%)] opacity-70"
-                          : "cursor-pointer border-[hsl(0,0%,85%)] bg-[hsl(0,0%,95%)] hover:border-[hsl(0,0%,70%)]"
+                          : "cursor-pointer border-[hsl(0,0%,85%)] bg-[hsl(0,0%,95%)] hover:border-[hsl(0,0%,68%)] hover:bg-[hsl(0,0%,97%)] hover:shadow-[0_12px_40px_-16px_rgba(0,0,0,0.1)] hover:-translate-y-px active:translate-y-0 active:shadow-[0_4px_16px_-12px_rgba(0,0,0,0.06)]"
                       }`}
                     >
-                      <span className="mb-8 inline-block w-fit max-w-[min(100%,240px)] shrink-0 self-start rounded-full bg-white px-3 py-1.5 text-sm font-medium text-[hsl(0,0%,10%)]">
+                      <span className="mb-8 inline-block w-fit max-w-[min(100%,240px)] shrink-0 self-start rounded-full bg-white px-3 py-1.5 text-sm font-medium text-[hsl(0,0%,10%)] shadow-sm ring-1 ring-transparent transition-[box-shadow,ring-color,transform] duration-200 group-hover:shadow-md group-hover:ring-[hsl(0,0%,88%)]">
                         Suggest concept
                       </span>
                       <p className="text-sm text-[hsl(0,0%,40%)]">
