@@ -207,7 +207,7 @@ const CreateDesignStep2 = () => {
 
             {/* Right Column - Ministers Names */}
             <div className="md:pl-12 xl:pl-14">
-              <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)] mb-1">Add Ministers Name</h3>
+              <h3 className="text-sm font-semibold text-[hsl(0,0%,10%)] mb-1">Add Ministers Name <span className="text-xs text-[hsl(0,0%,55%)]">(In Order of Importance, Starting With The Most Prominent)</span></h3>
               <p className="text-xs text-[hsl(0,0%,55%)] mb-4">
                 Enter Name and Title (Title is optional)
               </p>
