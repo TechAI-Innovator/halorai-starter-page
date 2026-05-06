@@ -2,8 +2,10 @@ import { useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import CreateDesignHero from "@/components/CreateDesignHero";
+import MinisterDragHandle from "@/components/MinisterDragHandle";
 import StepperProgress from "@/components/StepperProgress";
 import { useCreateDesign, type LocalFileItem, type MinisterLocalRow } from "@/contexts/CreateDesignContext";
+import { useMinistersReorder } from "@/hooks/useMinistersReorder";
 import { MAX_MINISTERS } from "@/lib/limits";
 
 const placeholderPairs = [
@@ -27,6 +29,7 @@ const CreateDesignStep4 = () => {
   const nextPlaceholder = useMemo(() => {
     return (idx: number) => placeholderPairs[idx] ?? { placeholderName: "Minister name", placeholderTitle: "Role/Title" };
   }, []);
+  const ministersReorder = useMinistersReorder(setMinisters);
   const missingMinisterName = ministers.length > 0 && ministers.some((m) => !m.name.trim());
 
   /** Same field order as before; labels match Step 1 (CreateDesign). */
@@ -233,10 +236,28 @@ const CreateDesignStep4 = () => {
               {!canAddMoreMinisters ? (
                 <p className="mb-2 shrink-0 text-[11px] text-[hsl(0,0%,50%)]">Maximum {MAX_MINISTERS} minister images.</p>
               ) : null}
+              {ministers.length > 1 ? (
+                <p className="mb-2 shrink-0 text-[11px] text-[hsl(330,100%,38%)]">
+                  Drag the handle beside each row to reorder (top = most prominent).
+                </p>
+              ) : null}
               <div className="ministers-scroll flex min-h-[220px] flex-1 flex-col gap-3 overflow-y-auto pr-2">
                 {ministers.length ? (
-                  ministers.map((minister) => (
-                    <div key={minister.id} className="flex items-center gap-3">
+                  ministers.map((minister, index) => (
+                    <div
+                      key={minister.id}
+                      className={`flex items-center gap-3 ${ministersReorder.rowVisualClass(index)}`}
+                      {...ministersReorder.rowDragHandlers(index)}
+                    >
+                      {ministers.length > 1 ? (
+                        <MinisterDragHandle
+                          compact
+                          onDragStart={ministersReorder.handleDragStart(index)}
+                          onDragEnd={ministersReorder.handleDragEnd}
+                        />
+                      ) : (
+                        <span className="w-3 shrink-0" aria-hidden />
+                      )}
                       <img
                         src={minister.avatar.previewUrl}
                         alt={minister.avatar.file.name}
