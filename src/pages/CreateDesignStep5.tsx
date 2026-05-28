@@ -234,9 +234,10 @@ const CreateDesignStep5 = () => {
               </div>
             </div>
 
-            {/* Middle Column — flyer preview: scales with screen size */}
+            {/* Middle Column — flyer preview + download */}
             <div className="flex min-h-0 items-center justify-center px-2">
-              <div className="inline-flex max-w-full items-center justify-center overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)]">
+              <div className="inline-flex max-w-full flex-col items-stretch">
+              <div className="overflow-hidden rounded-xl bg-[hsl(0,0%,94%)] ring-1 ring-[hsl(0,0%,92%)]">
                 {flyerImage ? (
                   <img
                     src={`data:${flyerImage.mimeType};base64,${flyerImage.base64}`}
@@ -249,6 +250,64 @@ const CreateDesignStep5 = () => {
                     aria-label="Design preview loading"
                   />
                 )}
+              </div>
+
+              <div className="mt-4 flex w-full justify-end">
+                <div className="relative inline-flex">
+                  {isDownloadOpen && flyerImage ? (
+                    <div
+                      className="absolute right-full top-0 z-20 mr-0 min-w-[11rem] rounded-2xl border border-[hsl(0,0%,90%)] bg-white p-2 shadow-lg"
+                      role="menu"
+                    >
+                      <span
+                        className="pointer-events-none absolute -right-[4px] top-3 box-border h-2.5 w-2.5 rotate-45 border border-[hsl(0,0%,90%)] border-b-0 border-l-0 bg-white"
+                        aria-hidden
+                      />
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => void handleDownload("png")}
+                        className="w-full rounded-xl px-3 py-2 text-left text-sm text-[hsl(0,0%,10%)] transition-colors hover:bg-[hsl(0,0%,97%)]"
+                      >
+                        PNG
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => void handleDownload("jpg")}
+                        className="w-full rounded-xl px-3 py-2 text-left text-sm text-[hsl(0,0%,10%)] transition-colors hover:bg-[hsl(0,0%,97%)]"
+                      >
+                        JPG
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => void handleDownload("pdf")}
+                        className="w-full rounded-xl px-3 py-2 text-left text-sm text-[hsl(0,0%,10%)] transition-colors hover:bg-[hsl(0,0%,97%)]"
+                      >
+                        PDF (clear view)
+                      </button>
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={!canGenerate || !flyerImage || isDownloading}
+                    onClick={() => setIsDownloadOpen((v) => !v)}
+                    className={`inline-flex items-center justify-center gap-2 rounded-full border-none px-6 py-3 text-sm font-regular transition-colors ${
+                      !canGenerate || !flyerImage || isDownloading
+                        ? "cursor-not-allowed bg-[hsl(0,0%,60%)] text-white"
+                        : "cursor-pointer bg-[hsl(0,0%,10%)] text-white hover:bg-[hsl(0,0%,20%)]"
+                    }`}
+                  >
+                    {isDownloading ? "Preparing..." : "Download"}
+                    <img
+                      src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg"
+                      alt=""
+                      className="h-4 w-4 pl-1"
+                    />
+                  </button>
+                </div>
+              </div>
               </div>
             </div>
 
@@ -289,60 +348,20 @@ const CreateDesignStep5 = () => {
                 </div>
               ) : null}
 
-              <div className="w-full max-w-[420px] flex items-center gap-5 mt-4">
+              <div className="mt-4 w-full max-w-[420px]">
                 <button
+                  type="button"
                   disabled={!canGenerate || isPreparing || !hasMessage}
                   onClick={() => void handleEdit()}
-                  className={`flex items-center justify-center gap-2 border rounded-full px-6 py-3 text-sm font-regular transition-colors w-[140px] ${
+                  className={`flex w-[140px] items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-regular transition-colors ${
                     !canGenerate || isPreparing || !hasMessage
-                      ? "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,40%)] cursor-not-allowed"
-                      : "bg-[hsl(0,0%,97%)] border-[hsl(0,0%,95%)] text-[hsl(0,0%,10%)] cursor-pointer hover:border-[hsl(0,0%,60%)]"
+                      ? "cursor-not-allowed border-[hsl(0,0%,95%)] bg-[hsl(0,0%,97%)] text-[hsl(0,0%,40%)]"
+                      : "cursor-pointer border-[hsl(0,0%,95%)] bg-[hsl(0,0%,97%)] text-[hsl(0,0%,10%)] hover:border-[hsl(0,0%,60%)]"
                   }`}
                 >
-                  <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="w-4 h-4" />
+                  <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="Edit" className="h-4 w-4" />
                   Edit
                 </button>
-                <div className="flex-1 relative">
-                  <button
-                    disabled={!canGenerate || !flyerImage || isDownloading}
-                    onClick={() => setIsDownloadOpen((v) => !v)}
-                    className={`w-full flex items-center justify-center gap-2 border-none rounded-full px-6 py-3 text-sm font-regular transition-colors ${
-                      !canGenerate || !flyerImage || isDownloading
-                        ? "bg-[hsl(0,0%,60%)] text-white cursor-not-allowed"
-                        : "bg-[hsl(0,0%,10%)] text-white cursor-pointer hover:bg-[hsl(0,0%,20%)]"
-                    }`}
-                  >
-                    {isDownloading ? "Preparing..." : "Download"}
-                    <img
-                      src="/Halorai Dev/Icons/weui_arrow-outlined-forward.svg"
-                      alt="Forward"
-                      className="w-4 h-4 pl-1"
-                    />
-                  </button>
-
-                  {isDownloadOpen && flyerImage ? (
-                    <div className="absolute right-0 mt-2 w-full bg-white border border-[hsl(0,0%,90%)] rounded-2xl shadow-lg p-2 z-20">
-                      <button
-                        onClick={() => void handleDownload("png")}
-                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
-                      >
-                        PNG
-                      </button>
-                      <button
-                        onClick={() => void handleDownload("jpg")}
-                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
-                      >
-                        JPG
-                      </button>
-                      <button
-                        onClick={() => void handleDownload("pdf")}
-                        className="w-full text-left px-3 py-2 rounded-xl text-sm text-[hsl(0,0%,10%)] hover:bg-[hsl(0,0%,97%)] transition-colors"
-                      >
-                        PDF (clear view)
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
               </div>
             </div>
           </div>
