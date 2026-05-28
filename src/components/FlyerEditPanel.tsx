@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { pickSingleImageFile } from "@/lib/singleImagePick";
+import { FLYER_SKETCH_COLORS } from "@/lib/flyerEditGeometry";
 
 export const FLYER_EDIT_COST_PER_REGION = 30;
 export const FLYER_EDIT_MAX_REGIONS = 3;
@@ -31,6 +32,9 @@ type Props = {
   sendDisabled: boolean;
   isApplying: boolean;
   editCost: number;
+  sketchColor: string;
+  onSketchColorChange: (color: string) => void;
+  sketchColorDisabled?: boolean;
 };
 
 export default function FlyerEditPanel({
@@ -52,6 +56,9 @@ export default function FlyerEditPanel({
   sendDisabled,
   isApplying,
   editCost,
+  sketchColor,
+  onSketchColorChange,
+  sketchColorDisabled,
 }: Props) {
   const plusInputRef = useRef<HTMLInputElement | null>(null);
   const hasRegions = regions.length > 0;
@@ -113,11 +120,33 @@ export default function FlyerEditPanel({
           onChange={(e) => onMessageChange(e.target.value)}
           placeholder={
             hasRegions
-              ? "Add circles on the flyer, then send to apply all requests…"
+              ? "Sketch regions on the flyer, then send to apply all requests…"
               : "Put the logo on the right hand, and Remove the..."
           }
           className="min-h-[120px] w-full flex-1 resize-none border-none bg-transparent text-sm text-[hsl(0,0%,10%)] outline-none placeholder:text-[hsl(0,0%,55%)] disabled:cursor-not-allowed disabled:opacity-60"
         />
+
+        <div className="mt-2 flex items-center gap-2">
+          <span className="shrink-0 text-[11px] text-[hsl(0,0%,50%)]">Pencil</span>
+          {FLYER_SKETCH_COLORS.map((c) => {
+            const selected = sketchColor === c.value;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                title={c.label}
+                disabled={sketchColorDisabled || isApplying}
+                aria-label={`${c.label} pencil`}
+                aria-pressed={selected}
+                onClick={() => onSketchColorChange(c.value)}
+                className={`h-5 w-5 shrink-0 rounded-full border-2 transition-transform disabled:cursor-not-allowed disabled:opacity-40 ${
+                  selected ? "scale-110 border-[hsl(0,0%,20%)]" : "border-[hsl(0,0%,88%)] hover:scale-105"
+                }`}
+                style={{ backgroundColor: c.value }}
+              />
+            );
+          })}
+        </div>
 
         <input
           ref={plusInputRef}
@@ -153,7 +182,7 @@ export default function FlyerEditPanel({
                 : "bg-[hsl(0,0%,94%)] text-[hsl(0,0%,25%)] hover:bg-[hsl(0,0%,90%)]"
             } disabled:cursor-not-allowed disabled:opacity-40`}
           >
-            <img src="/Halorai Dev/Icons/lucide_edit-3.svg" alt="" className="h-3.5 w-3.5" />
+            <img src="/Halorai Dev/Icons/lucide_edit-2.svg" alt="" className="h-3.5 w-3.5" />
             Circle to Edit
           </button>
 
@@ -194,7 +223,7 @@ export default function FlyerEditPanel({
       ) : null}
 
       {circleMode && !circleDisabled ? (
-        <p className="mt-2 text-xs text-[hsl(210,70%,40%)]">Draw a circle on the flyer to open the edit popup.</p>
+        <p className="mt-2 text-xs text-[hsl(210,70%,40%)]">Sketch on the flyer to mark an area and open the edit popup.</p>
       ) : null}
 
       {directInsertImage && !hasRegions ? (

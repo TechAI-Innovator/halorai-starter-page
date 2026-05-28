@@ -12,6 +12,7 @@ import FlyerEditPanel, {
   FLYER_EDIT_MAX_REGIONS,
   type FlyerEditRegion,
 } from "@/components/FlyerEditPanel";
+import { FLYER_SKETCH_DEFAULT_COLOR } from "@/lib/flyerEditGeometry";
 import { flyerImageToPngBlob } from "@/lib/flyerEditGeometry";
 import type { FlyerImage } from "@/contexts/CreateDesignContext";
 
@@ -38,6 +39,7 @@ const CreateDesignStep5 = () => {
 
   const [regions, setRegions] = useState<FlyerEditRegion[]>([]);
   const [circleMode, setCircleMode] = useState(false);
+  const [sketchColor, setSketchColor] = useState<string>(FLYER_SKETCH_DEFAULT_COLOR);
   const [directInsertImage, setDirectInsertImage] = useState<File | null>(null);
   const [directInsertPreviewUrl, setDirectInsertPreviewUrl] = useState<string | null>(null);
   const directPreviewRef = useRef<string | null>(null);
@@ -380,6 +382,7 @@ const CreateDesignStep5 = () => {
                         flyerImage={flyerImage}
                         resetKey={flyerKey}
                         circleMode={circleMode}
+                        sketchColor={sketchColor}
                         disabled={busy || maxRegionsReached}
                         onAddRegion={handleAddRegion}
                       />
@@ -472,6 +475,9 @@ const CreateDesignStep5 = () => {
                 sendDisabled={sendDisabled}
                 isApplying={isApplyingEdits}
                 editCost={editCost}
+                sketchColor={sketchColor}
+                onSketchColorChange={setSketchColor}
+                sketchColorDisabled={circleDisabled}
               />
 
               {error ? (

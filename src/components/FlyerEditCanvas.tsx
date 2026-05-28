@@ -2,16 +2,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { FlyerImage } from "@/contexts/CreateDesignContext";
 import { pickSingleImageFile } from "@/lib/singleImagePick";
 import {
-  circleFromDrag,
-  circleToMaskBlob,
-  cropCirclePreviewUrl,
+  cropSketchPreviewUrl,
+  drawSketchPreview,
+  isSketchValid,
   layoutFromImage,
-  type FlyerCircle,
+  sketchStrokeWidth,
+  sketchToMaskBlob,
   type FlyerLayout,
+  type FlyerPoint,
+  type FlyerSketch,
 } from "@/lib/flyerEditGeometry";
 
 export type PendingFlyerRegion = {
-  circle: FlyerCircle;
   layout: FlyerLayout;
   maskBlob: Blob;
   previewUrl: string;
@@ -23,16 +25,20 @@ type Props = {
   flyerImage: FlyerImage;
   resetKey: string;
   circleMode: boolean;
+  sketchColor: string;
   disabled?: boolean;
   onAddRegion: (region: PendingFlyerRegion) => void;
 };
 
-export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disabled, onAddRegion }: Props) {
+const MIN_POINT_DIST = 2;
+const PENCIL_CURSOR = 'url("/Halorai Dev/Icons/lucide_edit-2.svg") 2 18, crosshair';
+
+export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, sketchColor, disabled, onAddRegion }: Props) {
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const interactCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const sketchPointsRef = useRef<FlyerSketch>([]);
   const [layout, setLayout] = useState<FlyerLayout | null>(null);
-  const [draftCircle, setDraftCircle] = useState<FlyerCircle | null>(null);
   const [popup, setPopup] = useState<{
-    circle: FlyerCircle;
     layout: FlyerLayout;
     maskBlob: Blob;
     previewUrl: string;
@@ -45,7 +51,6 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
   const popupInsertRef = useRef<HTMLInputElement | null>(null);
   const popupRefUrlRef = useRef<string | null>(null);
 
-  const dragStart = useRef<{ x: number; y: number } | null>(null);
   const drawing = useRef(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,8 +66,16 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
     img.src = dataUrl;
   }, [dataUrl, resetKey]);
 
+  const clearSketchCanvas = useCallback(() => {
+    const canvas = interactCanvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!ctx || !layout) return;
+    ctx.clearRect(0, 0, layout.w, layout.h);
+  }, [layout]);
+
   useEffect(() => {
-    setDraftCircle(null);
+    sketchPointsRef.current = [];
+    clearSketchCanvas();
     setPopup(null);
     setPopupPrompt("");
     setPopupRef(null);
@@ -71,7 +84,7 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
       popupRefUrlRef.current = null;
     }
     setPopupRefPreviewUrl(null);
-  }, [resetKey, circleMode]);
+  }, [resetKey, circleMode, clearSketchCanvas]);
 
   const toCanvasPoint = useCallback(
     (e: React.PointerEvent, el: HTMLElement) => {
@@ -87,6 +100,31 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
     [layout]
   );
 
+  const redrawDraftSketch = useCallback(() => {
+    const canvas = interactCanvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!ctx || !layout) return;
+    const strokeWidth = sketchStrokeWidth(layout);
+    drawSketchPreview(ctx, layout, sketchPointsRef.current, strokeWidth, sketchColor);
+  }, [layout, sketchColor]);
+
+  useEffect(() => {
+    if (drawing.current && sketchPointsRef.current.length > 0) {
+      redrawDraftSketch();
+    }
+  }, [sketchColor, redrawDraftSketch]);
+
+  const appendPoint = useCallback((pt: FlyerPoint) => {
+    const pts = sketchPointsRef.current;
+    const last = pts[pts.length - 1];
+    if (last) {
+      const dx = pt.x - last.x;
+      const dy = pt.y - last.y;
+      if (dx * dx + dy * dy < MIN_POINT_DIST * MIN_POINT_DIST) return;
+    }
+    pts.push(pt);
+  }, []);
+
   const closePopup = useCallback(() => {
     setPopup(null);
     setPopupPrompt("");
@@ -96,35 +134,40 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
       popupRefUrlRef.current = null;
     }
     setPopupRefPreviewUrl(null);
-    setDraftCircle(null);
+    sketchPointsRef.current = [];
+    clearSketchCanvas();
     if (popupInsertRef.current) popupInsertRef.current.value = "";
-  }, []);
+  }, [clearSketchCanvas]);
 
-  const openPopupForCircle = useCallback(
-    async (circle: FlyerCircle) => {
+  const openPopupForSketch = useCallback(
+    async (points: FlyerSketch) => {
       const img = imgRef.current;
       if (!img || !layout || !containerRef.current) return;
-      const previewUrl = cropCirclePreviewUrl(img, layout, circle);
-      const maskBlob = await circleToMaskBlob(layout, circle);
+      const strokeWidth = sketchStrokeWidth(layout);
+      const previewUrl = cropSketchPreviewUrl(img, layout, points, strokeWidth);
+      const maskBlob = await sketchToMaskBlob(layout, points, strokeWidth);
       if (!previewUrl || !maskBlob) return;
+
+      const pad = Math.ceil(strokeWidth / 2) + 4;
+      let minX = Infinity;
+      let minY = Infinity;
+      for (const p of points) {
+        minX = Math.min(minX, p.x);
+        minY = Math.min(minY, p.y);
+      }
 
       const rect = containerRef.current.getBoundingClientRect();
       const scaleX = rect.width / layout.w;
       const scaleY = rect.height / layout.h;
-      const left = Math.min(
-        Math.max(8, circle.cx * scaleX - 8),
-        rect.width - 280
-      );
-      const top = Math.min(
-        Math.max(8, (circle.cy - circle.r) * scaleY - 8),
-        rect.height - 200
-      );
+      const left = Math.min(Math.max(8, (minX - pad) * scaleX), rect.width - 280);
+      const top = Math.min(Math.max(8, (minY - pad) * scaleY), rect.height - 200);
 
-      setPopup({ circle, layout, maskBlob, previewUrl, left, top });
+      clearSketchCanvas();
+      setPopup({ layout, maskBlob, previewUrl, left, top });
       setPopupPrompt("");
       setPopupRef(null);
     },
-    [layout]
+    [layout, clearSketchCanvas]
   );
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -132,17 +175,17 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
     e.currentTarget.setPointerCapture(e.pointerId);
     const pt = toCanvasPoint(e, e.currentTarget);
     if (!pt) return;
-    dragStart.current = pt;
     drawing.current = true;
-    setDraftCircle({ cx: pt.x, cy: pt.y, r: 0 });
+    sketchPointsRef.current = [pt];
+    redrawDraftSketch();
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current || !dragStart.current || !layout) return;
+    if (!drawing.current || !layout) return;
     const pt = toCanvasPoint(e, e.currentTarget);
     if (!pt) return;
-    const circle = circleFromDrag(dragStart.current, pt);
-    setDraftCircle(circle ?? { cx: dragStart.current.x, cy: dragStart.current.y, r: 0 });
+    appendPoint(pt);
+    redrawDraftSketch();
   };
 
   const onPointerUp = async (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -151,25 +194,23 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
     } catch {
       /* ignore */
     }
-    if (!drawing.current || !dragStart.current) return;
+    if (!drawing.current) return;
     drawing.current = false;
     const pt = toCanvasPoint(e, e.currentTarget);
-    const start = dragStart.current;
-    dragStart.current = null;
-    if (!pt) {
-      setDraftCircle(null);
+    if (pt) appendPoint(pt);
+
+    const points = [...sketchPointsRef.current];
+    sketchPointsRef.current = [];
+    if (!isSketchValid(points)) {
+      clearSketchCanvas();
       return;
     }
-    const circle = circleFromDrag(start, pt);
-    setDraftCircle(null);
-    if (!circle) return;
-    await openPopupForCircle(circle);
+    await openPopupForSketch(points);
   };
 
   const handleAddRequest = () => {
     if (!popup || !popupPrompt.trim()) return;
     onAddRegion({
-      circle: popup.circle,
       layout: popup.layout,
       maskBlob: popup.maskBlob,
       previewUrl: popup.previewUrl,
@@ -185,29 +226,16 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
     <div ref={containerRef} className="pointer-events-none absolute inset-0">
       {circleMode ? (
         <canvas
+          ref={interactCanvasRef}
           width={layout.w}
           height={layout.h}
           className="pointer-events-auto absolute inset-0 h-full w-full touch-none"
-          style={{ cursor: disabled ? "not-allowed" : "crosshair" }}
+          style={{ cursor: disabled ? "not-allowed" : PENCIL_CURSOR }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         />
-      ) : null}
-
-      {draftCircle && circleMode && !popup ? (
-        <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox={`0 0 ${layout.w} ${layout.h}`} preserveAspectRatio="none">
-          <circle
-            cx={draftCircle.cx}
-            cy={draftCircle.cy}
-            r={Math.max(draftCircle.r, 1)}
-            fill="none"
-            stroke="hsl(210,100%,55%)"
-            strokeWidth={Math.max(2, layout.w / 400)}
-            strokeDasharray="6 4"
-          />
-        </svg>
       ) : null}
 
       {popup ? (
@@ -244,7 +272,6 @@ export default function FlyerEditCanvas({ flyerImage, resetKey, circleMode, disa
           <textarea
             value={popupPrompt}
             onChange={(e) => setPopupPrompt(e.target.value)}
-
             rows={2}
             placeholder="Describe what to change in this area…"
             className="mb-2 min-h-[2.75rem] w-full resize-none border-none bg-transparent text-sm text-[hsl(0,0%,10%)] outline-none placeholder:text-[hsl(0,0%,55%)]"
