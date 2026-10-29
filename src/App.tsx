@@ -10,6 +10,8 @@ import CreateDesignStep3 from "./pages/CreateDesignStep3";
 import CreateDesignStep3ii from "./pages/CreateDesignStep3ii";
 import CreateDesignStep4 from "./pages/CreateDesignStep4";
 import CreateDesignStep5 from "./pages/CreateDesignStep5";
+import PluginPreview from "./pages/PluginPreview";
+import Health from "./pages/Health";
 import NotFound from "./pages/NotFound";
 import { CreateDesignProvider } from "@/contexts/CreateDesignContext";
 
@@ -30,6 +32,9 @@ const App = () => (
             <Route path="/create-design/step-3ii" element={<CreateDesignStep3ii />} />
             <Route path="/create-design/step-4" element={<CreateDesignStep4 />} />
             <Route path="/create-design/step-5" element={<CreateDesignStep5 />} />
+            <Route path="/plugin-preview" element={<PluginPreview />} />
+            <Route path="/plugin-review" element={<PluginPreview />} />
+            <Route path="/health" element={<Health />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
